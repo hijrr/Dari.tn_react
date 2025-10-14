@@ -1,54 +1,20 @@
-import React from 'react';
-import { FilterOutlined, EnvironmentOutlined, StarFilled, EyeFilled, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import './Dashboard.css';
+import React, { useState, useEffect } from "react";
+import { EnvironmentOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import "./Dashboard.css";
 
 const AnnoncesGrid = () => {
-  const annonces = [
-    {
-      id: 1,
-      titre: "Villa Moderne avec Piscine",
-      lieu: "Marseille",
-      prix: "250€",
-      periode: "nuit",
-      statut: "Active",
-      vues: 124,
-      reservations: 12,
-      note: 4.8,
-      image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400&h=250&fit=crop",
-      chambres: 4,
-      superficie: "120m²"
-    },
-    {
-      id: 2,
-      titre: "Appartement Design Centre-ville",
-      lieu: "Paris 5ème",
-      prix: "180€",
-      periode: "nuit",
-      statut: "En attente",
-      vues: 89,
-      reservations: 8,
-      note: 4.6,
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=250&fit=crop",
-      chambres: 2,
-      superficie: "65m²"
-    },
-    {
-      id: 3,
-      titre: "Chalet Montagne Vue Exceptionnelle",
-      lieu: "Chamonix",
-      prix: "320€",
-      periode: "nuit",
-      statut: "Active",
-      vues: 156,
-      reservations: 15,
-      note: 4.9,
-      image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=250&fit=crop",
-      chambres: 3,
-      superficie: "95m²"
-    },
-  
-  ];
+  const [annonces, setAnnonces] = useState([]);
 
+  useEffect(() => {
+    fetch("http://localhost:5000/get/3dernierAnnonces")
+      .then((response) => response.json())
+      .then((data) => setAnnonces(data))
+      .catch((error) =>
+        console.error("Erreur lors de la récupération des annonces :", error)
+      );
+  }, []);
+
+  // Animation au survol de la carte
   const handleAnnonceHover = (e) => {
     e.currentTarget.style.transform = "translateY(-6px)";
     e.currentTarget.style.boxShadow = "0 20px 40px rgba(0, 0, 0, 0.12)";
@@ -61,6 +27,7 @@ const AnnoncesGrid = () => {
     e.currentTarget.style.borderColor = "var(--color-background-hover)";
   };
 
+  // Animation sur les boutons
   const handleButtonHover = (color) => (e) => {
     e.target.style.backgroundColor = color;
     e.target.style.color = "#fff";
@@ -82,96 +49,95 @@ const AnnoncesGrid = () => {
             {annonces.length} annonces actives • Gérer vos propriétés
           </p>
         </div>
-  
       </div>
-      
+
       <div className="annonces-grid">
         {annonces.map((annonce) => (
-          <div 
-            key={annonce.id}
+          <div
+            key={annonce.idAnnonce}
             className="annonce-card"
             onMouseEnter={handleAnnonceHover}
             onMouseLeave={handleAnnonceLeave}
           >
-            <div 
-              className="annonce-image"
-              style={{ backgroundImage: `url(${annonce.image})` }}
-            >
-              <div 
+            <div className="annonce-image">
+              {annonce.image ? (
+                <img
+                  src={annonce.image} // Base64 directement
+                  alt={annonce.titre}
+                  style={{
+                    width: "100%",
+                    height: "200px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "200px",
+                    backgroundColor: "#eee",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "8px",
+                  }}
+                >
+                  Image non disponible
+                </div>
+              )}
+
+              <div
                 className="annonce-status"
                 style={{
-                  color: annonce.statut === "Active" ? "var(--color-accent-green)" : "var(--color-accent-orange)",
-                  backgroundColor: annonce.statut === "Active" ? "var(--color-accent-green)15" : "var(--color-accent-orange)15",
-                  border: `1px solid ${annonce.statut === "Active" ? "var(--color-accent-green)30" : "var(--color-accent-orange)30"}`
+                  color: annonce.statu === "ACTIVE" ? "var(--color-accent-green)" : "var(--color-accent-orange)",
+                  backgroundColor: annonce.statu === "ACTIVE" ? "var(--color-accent-green)15" : "var(--color-accent-orange)15",
+                  border: `1px solid ${annonce.statu === "ACTIVE" ? "var(--color-accent-green)30" : "var(--color-accent-orange)30"}`,
                 }}
               >
-                {annonce.statut}
+                {annonce.statu}
               </div>
             </div>
 
             <div className="annonce-content">
-              <div style={{ marginBottom: "20px" }}>
+              <div style={{ marginBottom: "10px" }}>
                 <div className="annonce-title">{annonce.titre}</div>
                 <div className="annonce-location">
-                  <EnvironmentOutlined />
-                  {annonce.lieu}
+                  <EnvironmentOutlined /> {annonce.localisation}
                 </div>
               </div>
 
-              <div className="annonce-details-grid">
-                <div className="detail-item">
-                  <div className="detail-label">CHAMBRES</div>
-                  <div className="detail-value">{annonce.chambres}</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">SUPERFICIE</div>
-                  <div className="detail-value">{annonce.superficie}</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">VUES</div>
-                  <div className="detail-value">{annonce.vues}</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">RÉSERVATIONS</div>
-                  <div className="detail-value">{annonce.reservations}</div>
-                </div>
-              </div>
+              {annonce.description && (
+                <p className="annonce-description">
+                  {annonce.description.length > 100
+                    ? `${annonce.description.substring(0, 100)}...`
+                    : annonce.description}
+                </p>
+              )}
 
               <div className="annonce-price-rating">
-                <div>
-                  <div className="annonce-price">
-                    {annonce.prix}
-                    <span className="price-period">/{annonce.periode}</span>
-                  </div>
-                </div>
-                <div className="annonce-rating">
-                  <StarFilled style={{ color: "var(--color-accent-orange)", fontSize: "16px" }} />
-                  <span className="rating-value">{annonce.note}</span>
-                  <span className="rating-max">/5</span>
+                <div className="annonce-price">
+                  {annonce.prix} TND /jour
                 </div>
               </div>
 
               <div className="annonce-actions">
-            
-                
-                <button 
+                <button
                   className="action-button"
                   style={{ color: "var(--color-accent-orange)" }}
                   onMouseEnter={handleButtonHover("var(--color-accent-orange)")}
                   onMouseLeave={handleButtonLeave("var(--color-accent-orange)")}
                 >
-                  <EditOutlined />
-                  Modifier
+                  <EditOutlined /> Modifier
                 </button>
-                
-                <button 
+
+                <button
                   className="action-button"
                   style={{ color: "var(--color-accent-red)" }}
                   onMouseEnter={handleButtonHover("var(--color-accent-red)")}
                   onMouseLeave={handleButtonLeave("var(--color-accent-red)")}
                 >
-                  <DeleteOutlined />
-                  Supprimer
+                  <DeleteOutlined /> Supprimer
                 </button>
               </div>
             </div>
