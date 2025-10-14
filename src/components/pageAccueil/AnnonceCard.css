@@ -1,0 +1,126 @@
+.annonce-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.annonce-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.card-image {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.annonce-card:hover .card-image img {
+  transform: scale(1.1);
+}
+
+.card-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #667eea;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 600;
+}
+
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stars {
+  font-size: 0.9rem;
+}
+
+.note {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.card-description {
+  color: #718096;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.devise {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.duree {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.reserve-btn {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.reserve-btn:hover {
+  background: #38a169;
+  transform: translateY(-2px);
+}

@@ -1,13 +1,11 @@
 import React from "react";
-import AjouterAnnonce from "./AjouterAnnonce";
-import Page1 from "./components/Page1";
-import Allannonces from "./components/Allannonces";
 
+import Accueil from './components/pageAccueil';
 function App() {
   return (
     <div className="App">
-    
-      <Allannonces/>
+      <Accueil />
+
     </div>
   );
 }
