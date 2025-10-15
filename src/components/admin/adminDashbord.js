@@ -1,32 +1,14 @@
+// DashboardAdmin.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logout from "../connexion/Logout";
-import './DashboardAdmin.css';
+import "./DashboardAdmin.css";
 
 function DashboardAdmin() {
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeSection, setActiveSection] = useState("dashboard");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
-
-  // Données statistiques simulées
-  const [stats, setStats] = useState({
-    totalProperties: 1247,
-    activeListings: 892,
-    pendingApprovals: 23,
-    totalUsers: 4567,
-    monthlyRevenue: 125400,
-    visits: 12458
-  });
-
-  // Dernières activités
-  const [recentActivities] = useState([
-    { id: 1, user: "Jean Dupont", action: "a ajouté une nouvelle propriété", time: "2 min", type: "add" },
-    { id: 2, user: "Marie Martin", action: "a modifié son profil", time: "5 min", type: "update" },
-    { id: 3, user: "Admin System", action: "a approuvé 3 propriétés", time: "10 min", type: "approve" },
-    { id: 4, user: "Pierre Lambert", action: "s'est inscrit", time: "15 min", type: "register" },
-    { id: 5, user: "Sarah Cohen", action: "a réservé une visite", time: "25 min", type: "booking" }
-  ]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -37,79 +19,88 @@ function DashboardAdmin() {
     }
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
+  const menuItems = [
+    {
+      id: "dashboard",
+      title: "Tableau de Bord",
+      icon: "fas fa-chart-line",
+      component: <DashboardOverview />
+    },
+    {
+      id: "annonces",
+      title: "Gestion des Annonces",
+      icon: "fas fa-newspaper",
+      component: <GestionAnnonces />
+    },
+    {
+      id: "utilisateurs",
+      title: "Gestion des Utilisateurs",
+      icon: "fas fa-users",
+      component: <GestionUtilisateurs />
+    },
+    {
+      id: "offres",
+      title: "Offres d'Annonce",
+      icon: "fas fa-tags",
+      component: <AjouterOffres />
+    },
+    {
+      id: "parametres",
+      title: "Paramètres",
+      icon: "fas fa-cog",
+      component: <Parametres />
+    }
+  ];
+
   if (!user) return (
     <div className="loading-container">
       <div className="loading-spinner"></div>
-      <p>Chargement du tableau de bord...</p>
+      <p>Chargement...</p>
     </div>
   );
 
+  const ActiveComponent = menuItems.find(item => item.id === activeSection)?.component;
+
   return (
-    <div className="dashboard-admin">
+    <div className="admin-dashboard">
       {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
+      <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <div className="logo">
-            <i className="fas fa-home"></i>
-            {sidebarOpen && <span>DariTN Admin</span>}
-          </div>
+          <h2>Admin Panel</h2>
           <button 
-            className="sidebar-toggle"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="toggle-sidebar"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
-            <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`}></i>
+            <i className={`fas fa-chevron-${isSidebarOpen ? 'left' : 'right'}`}></i>
           </button>
+        </div>
+        
+        <div className="user-info">
+          <div className="user-avatar">
+            <i className="fas fa-user-shield"></i>
+          </div>
+          <div className="user-details">
+            <h3>{user.nom} {user.prénom}</h3>
+            <p>{user.role}</p>
+          </div>
         </div>
 
         <nav className="sidebar-nav">
-          <button 
-            className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
-            onClick={() => setActiveTab("dashboard")}
-          >
-            <i className="fas fa-chart-line"></i>
-            {sidebarOpen && <span>Tableau de bord</span>}
-          </button>
-          
-          <button 
-            className={`nav-item ${activeTab === "properties" ? "active" : ""}`}
-            onClick={() => setActiveTab("properties")}
-          >
-            <i className="fas fa-building"></i>
-            {sidebarOpen && <span>Propriétés</span>}
-          </button>
-          
-          <button 
-            className={`nav-item ${activeTab === "users" ? "active" : ""}`}
-            onClick={() => setActiveTab("users")}
-          >
-            <i className="fas fa-users"></i>
-            {sidebarOpen && <span>Utilisateurs</span>}
-          </button>
-          
-          <button 
-            className={`nav-item ${activeTab === "approvals" ? "active" : ""}`}
-            onClick={() => setActiveTab("approvals")}
-          >
-            <i className="fas fa-check-circle"></i>
-            {sidebarOpen && <span>Approbations</span>}
-            {sidebarOpen && <span className="badge">23</span>}
-          </button>
-          
-          <button 
-            className={`nav-item ${activeTab === "reports" ? "active" : ""}`}
-            onClick={() => setActiveTab("reports")}
-          >
-            <i className="fas fa-chart-bar"></i>
-            {sidebarOpen && <span>Rapports</span>}
-          </button>
-          
-          <button 
-            className={`nav-item ${activeTab === "settings" ? "active" : ""}`}
-            onClick={() => setActiveTab("settings")}
-          >
-            <i className="fas fa-cog"></i>
-            {sidebarOpen && <span>Paramètres</span>}
-          </button>
+          {menuItems.map(item => (
+            <button
+              key={item.id}
+              className={`nav-item ${activeSection === item.id ? 'active' : ''}`}
+              onClick={() => setActiveSection(item.id)}
+            >
+              <i className={item.icon}></i>
+              {isSidebarOpen && <span>{item.title}</span>}
+            </button>
+          ))}
         </nav>
 
         <div className="sidebar-footer">
@@ -118,180 +109,167 @@ function DashboardAdmin() {
       </div>
 
       {/* Main Content */}
-      <div className={`main-content ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        {/* Header */}
-        <header className="dashboard-header">
+      <div className="main-content">
+        <header className="content-header">
           <div className="header-left">
-            <h1>Tableau de Bord Administrateur</h1>
-            <p>Bienvenue de retour, {user.prénom} !</p>
+            <h1>{menuItems.find(item => item.id === activeSection)?.title}</h1>
           </div>
           <div className="header-right">
-            <div className="user-info">
-              <div className="user-avatar">
-                {user.nom.charAt(0)}{user.prénom.charAt(0)}
-              </div>
-              <div className="user-details">
-                <span className="user-name">{user.nom} {user.prénom}</span>
-                <span className="user-role">{user.role}</span>
-              </div>
-            </div>
-            <div className="header-actions">
-              <button className="icon-btn">
-                <i className="fas fa-bell"></i>
-                <span className="notification-badge">3</span>
-              </button>
-              <button className="icon-btn">
-                <i className="fas fa-envelope"></i>
-              </button>
+            <div className="notification-bell">
+              <i className="fas fa-bell"></i>
+              <span className="notification-badge">3</span>
             </div>
           </div>
         </header>
 
-        {/* Stats Cards */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon properties">
-              <i className="fas fa-building"></i>
-            </div>
-            <div className="stat-info">
-              <h3>{stats.totalProperties.toLocaleString()}</h3>
-              <p>Propriétés totales</p>
-              <span className="stat-trend positive">+12%</span>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon listings">
-              <i className="fas fa-home"></i>
-            </div>
-            <div className="stat-info">
-              <h3>{stats.activeListings.toLocaleString()}</h3>
-              <p>Annonces actives</p>
-              <span className="stat-trend positive">+8%</span>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-card">
-              <div className="stat-icon approvals">
-                <i className="fas fa-check-circle"></i>
-              </div>
-              <div className="stat-info">
-                <h3>{stats.pendingApprovals}</h3>
-                <p>En attente</p>
-                <span className="stat-trend negative">+5</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon revenue">
-              <i className="fas fa-euro-sign"></i>
-            </div>
-            <div className="stat-info">
-              <h3>{stats.monthlyRevenue.toLocaleString()} €</h3>
-              <p>Revenu mensuel</p>
-              <span className="stat-trend positive">+15%</span>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon users">
-              <i className="fas fa-users"></i>
-            </div>
-            <div className="stat-info">
-              <h3>{stats.totalUsers.toLocaleString()}</h3>
-              <p>Utilisateurs</p>
-              <span className="stat-trend positive">+24%</span>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon visits">
-              <i className="fas fa-eye"></i>
-            </div>
-            <div className="stat-info">
-              <h3>{stats.visits.toLocaleString()}</h3>
-              <p>Visites ce mois</p>
-              <span className="stat-trend positive">+18%</span>
-            </div>
-          </div>
+        <div className="content-area">
+          {ActiveComponent}
         </div>
+      </div>
+    </div>
+  );
+}
 
-        {/* Charts and Activities */}
-        <div className="content-grid">
-          {/* Recent Activities */}
-          <div className="activity-card">
-            <div className="card-header">
-              <h3>Activités récentes</h3>
-              <button className="view-all">Voir tout</button>
+// Composants pour chaque section
+function DashboardOverview() {
+  const stats = [
+    { title: "Utilisateurs", value: "1,234", icon: "fas fa-users", color: "#3B82F6" },
+    { title: "Annonces", value: "567", icon: "fas fa-newspaper", color: "#10B981" },
+    { title: "Revenus", value: "$12,456", icon: "fas fa-dollar-sign", color: "#F59E0B" },
+    { title: "Offres Actives", value: "24", icon: "fas fa-tags", color: "#EF4444" }
+  ];
+
+  return (
+    <div className="dashboard-overview">
+      <div className="stats-grid">
+        {stats.map((stat, index) => (
+          <div key={index} className="stat-card" style={{ animationDelay: `${index * 0.1}s` }}>
+            <div className="stat-icon" style={{ backgroundColor: `${stat.color}20` }}>
+              <i className={stat.icon} style={{ color: stat.color }}></i>
             </div>
-            <div className="activity-list">
-              {recentActivities.map(activity => (
-                <div key={activity.id} className="activity-item">
-                  <div className={`activity-icon ${activity.type}`}>
-                    <i className={`fas fa-${
-                      activity.type === 'add' ? 'plus' :
-                      activity.type === 'update' ? 'edit' :
-                      activity.type === 'approve' ? 'check' :
-                      activity.type === 'register' ? 'user-plus' : 'calendar'
-                    }`}></i>
-                  </div>
-                  <div className="activity-content">
-                    <p><strong>{activity.user}</strong> {activity.action}</p>
-                    <span className="activity-time">{activity.time}</span>
-                  </div>
-                </div>
-              ))}
+            <div className="stat-info">
+              <h3>{stat.value}</h3>
+              <p>{stat.title}</p>
             </div>
           </div>
+        ))}
+      </div>
 
-          {/* Quick Actions */}
-          <div className="actions-card">
-            <div className="card-header">
-              <h3>Actions rapides</h3>
+      <div className="recent-activity">
+        <h2>Activité Récente</h2>
+        <div className="activity-list">
+          {[1, 2, 3].map(item => (
+            <div key={item} className="activity-item">
+              <div className="activity-icon">
+                <i className="fas fa-user-plus"></i>
+              </div>
+              <div className="activity-content">
+                <p>Nouvel utilisateur inscrit</p>
+                <span>Il y a 2 heures</span>
+              </div>
             </div>
-            <div className="actions-grid">
-              <button className="action-btn">
-                <i className="fas fa-plus-circle"></i>
-                <span>Nouvelle propriété</span>
-              </button>
-              <button className="action-btn">
-                <i className="fas fa-user-cog"></i>
-                <span>Gérer utilisateurs</span>
-              </button>
-              <button className="action-btn">
-                <i className="fas fa-chart-pie"></i>
-                <span>Voir rapports</span>
-              </button>
-              <button className="action-btn">
-                <i className="fas fa-cog"></i>
-                <span>Paramètres</span>
-              </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GestionAnnonces() {
+  return (
+    <div className="section-content">
+      <div className="section-header">
+        <h2>Gestion des Annonces</h2>
+        <button className="btn-primary">
+          <i className="fas fa-plus"></i>
+          Nouvelle Annonce
+        </button>
+      </div>
+      <div className="content-card">
+        <p>Interface de gestion des annonces à implémenter...</p>
+      </div>
+    </div>
+  );
+}
+
+function GestionUtilisateurs() {
+  return (
+    <div className="section-content">
+      <div className="section-header">
+        <h2>Gestion des Utilisateurs</h2>
+        <button className="btn-secondary">
+          <i className="fas fa-download"></i>
+          Exporter
+        </button>
+      </div>
+      <div className="content-card">
+        <p>Interface de gestion des utilisateurs à implémenter...</p>
+      </div>
+    </div>
+  );
+}
+
+function AjouterOffres() {
+  const offres = [
+    { nom: "10 annonces", prix: "$100", popular: false },
+    { nom: "25 annonces", prix: "$200", popular: true },
+    { nom: "50 annonces", prix: "$350", popular: false }
+  ];
+
+  return (
+    <div className="section-content">
+      <div className="section-header">
+        <h2>Offres d'Annonce</h2>
+      </div>
+      <div className="offres-grid">
+        {offres.map((offre, index) => (
+          <div key={index} className={`offre-card ${offre.popular ? 'popular' : ''}`}>
+            {offre.popular && <div className="popular-badge">Populaire</div>}
+            <h3>{offre.nom}</h3>
+            <div className="offre-prix">{offre.prix}</div>
+            <ul className="offre-features">
+              <li><i className="fas fa-check"></i> Publication immédiate</li>
+              <li><i className="fas fa-check"></i> Visibilité prioritaire</li>
+              <li><i className="fas fa-check"></i> Support 24/7</li>
+            </ul>
+            <button className="btn-primary">
+              <i className="fas fa-shopping-cart"></i>
+              Sélectionner
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Parametres() {
+  return (
+    <div className="section-content">
+      <div className="section-header">
+        <h2>Paramètres</h2>
+      </div>
+      <div className="content-card">
+        <div className="settings-grid">
+          <div className="setting-item">
+            <i className="fas fa-bell"></i>
+            <div>
+              <h4>Notifications</h4>
+              <p>Gérer les préférences de notification</p>
             </div>
           </div>
-
-          {/* User Info Card */}
-          <div className="user-card">
-            <div className="card-header">
-              <h3>Votre profil</h3>
+          <div className="setting-item">
+            <i className="fas fa-shield-alt"></i>
+            <div>
+              <h4>Sécurité</h4>
+              <p>Paramètres de sécurité du compte</p>
             </div>
-            <div className="user-profile">
-              <div className="profile-avatar large">
-                {user.nom.charAt(0)}{user.prénom.charAt(0)}
-              </div>
-              <div className="profile-info">
-                <h4>{user.nom} {user.prénom}</h4>
-                <p className="profile-role">{user.role}</p>
-                <p className="profile-email">{user.email}</p>
-                <p className="profile-phone">{user.telephone}</p>
-              </div>
-              <div className="profile-actions">
-                <button className="btn-primary">
-                  <i className="fas fa-edit"></i>
-                  Modifier le profil
-                </button>
-              </div>
+          </div>
+          <div className="setting-item">
+            <i className="fas fa-palette"></i>
+            <div>
+              <h4>Apparence</h4>
+              <p>Personnaliser l'interface</p>
             </div>
           </div>
         </div>

@@ -105,9 +105,9 @@ function Register() {
         // ✅ Redirection selon le rôle
         setTimeout(() => {
           if (formData.role === "admin") navigate("/dashboard-admin");
-          else if (formData.role === "agence") navigate("/dashboard-admin");
+          else if (formData.role === "agence") navigate("/dashboard-agence");
           else if (formData.role === "client") navigate("/dashboard-client");
-          else if (formData.role === "proprietaire") navigate("/dashboard-admin");
+          else if (formData.role === "proprietaire") navigate("/dashboard-proprietaire");
           else navigate("/");
         }, 2000);
       } else {

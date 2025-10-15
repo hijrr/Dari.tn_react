@@ -28,8 +28,8 @@ function Login() {
       // 🔹 Redirection immédiate selon le rôle
       if (user.role === "admin") navigate("/dashboard-admin");
       else if (user.role === "client") navigate("/dashboard-client");
-      else if (user.role === "agence") navigate("/dashboard-admin");
-      else if (user.role === "proprietaire") navigate("/dashboard-admin");
+      else if (user.role === "agence") navigate("/dashboard-agence");
+      else if (user.role === "proprietaire") navigate("/dashboard-proprietaire");
       else navigate("/"); // fallback
 
     } catch (err) {

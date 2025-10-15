@@ -1,14 +1,15 @@
-
-//import React from "react";
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// 🔹 Composants
 import Register from './components/connexion/register';
 import Login from './components/connexion/Login';
 import DashboardAdmin from './components/admin/adminDashbord';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import PageDashbordPrincipal from'./components/proprietaire/Dashbord/PageDashbordPrincipal';
+import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
+import ProtectedRoute from "./components/connexion/ProtectedRoute"; 
+
 function App() {
   const [clients, setClients] = useState([]);
   const [error, setError] = useState("");
@@ -20,28 +21,52 @@ function App() {
   }, []);
 
   return (
-
     <div className="App">
-
-      {/* <Accueil />
-        <Route path="/dashboard-client" element={<DashboardClient />} />
-        <Route path="/dashboard-agence" element={<DashboardAgence />} />
-        <Route path="/dashboard-proprietaire" element={<DashboardProprietaire />} /> 
-      </Routes>
-    </Router>*/}
-   <PageDashbordPrincipal/>
-  
-
       <Router>
         <Routes>
+          {/* 🌍 Pages publiques */}
           <Route path="/" element={<Accueil />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard-admin" element={<DashboardAdmin />} />
 
-          {/* <Route path="/dashboard-client" element={<DashboardClient />} />
-        <Route path="/dashboard-agence" element={<DashboardAgence />} />
-        <Route path="/dashboard-proprietaire" element={<DashboardProprietaire />} /> */}
+          {/* 🔒 Pages protégées selon rôle */}
+          <Route
+            path="/dashboard-admin"
+            element={
+              <ProtectedRoute roleRequired="admin">
+                <DashboardAdmin />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard-proprietaire"
+            element={
+              <ProtectedRoute roleRequired="proprietaire">
+                <PageDashbordPrincipal />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 🔹 Exemple si tu ajoutes plus tard */}
+          {/* 
+          <Route
+            path="/dashboard-client"
+            element={
+              <ProtectedRoute roleRequired="client">
+                <DashboardClient />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard-agence"
+            element={
+              <ProtectedRoute roleRequired="agence">
+                <DashboardAgence />
+              </ProtectedRoute>
+            }
+          />
+          */}
         </Routes>
       </Router>
     </div>
