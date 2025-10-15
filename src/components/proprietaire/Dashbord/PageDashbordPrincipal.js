@@ -2,10 +2,10 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import DashboardHeader from './DashboardHeader';
 import StatsCards from './StatsCards';
-import AnnoncesGrid from './AnnoncesGrid';
+import Annonces3Dernier from './Annonces3Dernier'
 import './Dashboard.css';
 
-const Page1 = () => {
+const PageDashbordPrincipal = () => {
   return (
     <div className="dashboard-container">
       <Sidebar />
@@ -13,10 +13,10 @@ const Page1 = () => {
       <div className="main-content">
         <DashboardHeader />
         <StatsCards />
-        <AnnoncesGrid />
+        < Annonces3Dernier/>
       </div>
     </div>
   );
 };
 
-export default Page1;
+export default PageDashbordPrincipal;

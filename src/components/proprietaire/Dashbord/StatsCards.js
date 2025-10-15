@@ -1,7 +1,6 @@
 import React from 'react';
 import { CheckCircleOutlined, FileTextOutlined, DollarOutlined, PieChartOutlined } from "@ant-design/icons";
 import './Dashboard.css';
-
 const StatsCards = () => {
   const statsCards = [
     { 

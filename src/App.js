@@ -1,12 +1,11 @@
-import React from "react";
+//import React from "react";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Register from './components/connexion/register';
 import Login from './components/connexion/Login';
 import DashboardAdmin from './components/admin/adminDashbord';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-
+import PageDashbordPrincipal from'./components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
 function App() {
   const [clients, setClients] = useState([]);
@@ -21,7 +20,7 @@ function App() {
   return (
 
     <div className="App">
-      <Accueil />
+      {/* <Accueil />
 
    
 
@@ -31,11 +30,12 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
 
-        {/* <Route path="/dashboard-client" element={<DashboardClient />} />
+        <Route path="/dashboard-client" element={<DashboardClient />} />
         <Route path="/dashboard-agence" element={<DashboardAgence />} />
-        <Route path="/dashboard-proprietaire" element={<DashboardProprietaire />} /> */}
+        <Route path="/dashboard-proprietaire" element={<DashboardProprietaire />} /> 
       </Routes>
-    </Router>
+    </Router>*/}
+   <PageDashbordPrincipal/>
      </div>
   );
 }

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { SearchOutlined, BellOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import './Dashboard.css';
-
 const DashboardHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
-
   const handleSearchFocus = (e) => {
     e.target.style.borderColor = "var(--color-accent-blue)";
     e.target.style.boxShadow = "0 4px 16px rgba(59, 130, 246, 0.15)";
@@ -89,5 +87,4 @@ const DashboardHeader = () => {
     </div>
   );
 };
-
 export default DashboardHeader;

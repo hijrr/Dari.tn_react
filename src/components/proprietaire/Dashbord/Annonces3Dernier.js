@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { EnvironmentOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import "./Dashboard.css";
-
-const AnnoncesGrid = () => {
+const Annonces3Dernier= () => {
   const [annonces, setAnnonces] = useState([]);
-
   useEffect(() => {
     fetch("http://localhost:5000/get/3dernierAnnonces")
       .then((response) => response.json())
@@ -148,4 +146,4 @@ const AnnoncesGrid = () => {
   );
 };
 
-export default AnnoncesGrid;
+export default Annonces3Dernier;

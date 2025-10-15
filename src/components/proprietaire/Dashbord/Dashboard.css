@@ -51,6 +51,7 @@
   border-right: 1px solid var(--color-border-light);
   z-index: 1000;
   box-shadow: 0 0 30px rgba(0,0,0,0.04);
+    background:white;
 }
 
 .sidebar-header {
@@ -74,10 +75,12 @@
   color: var(--color-primary-light);
   font-weight: 500;
   letter-spacing: 0.5px;
+
 }
 
 .sidebar-menu {
   padding: 0 16px;
+  
 }
 
 .menu-item {

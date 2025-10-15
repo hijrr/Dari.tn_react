@@ -58,9 +58,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar">
+    <div className="sidebar" >
       <div className="sidebar-header">
-        <div className="sidebar-title">LocationPro</div>
+       
         <div className="sidebar-subtitle">DASHBOARD PROPRIÉTAIRE</div>
       </div>
       
@@ -106,7 +106,7 @@ const Sidebar = () => {
             width: '40px',
             height: '40px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--color-accent-blue) 0%, var(--color-accent-purple) 100%)',
+            background: 'white',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

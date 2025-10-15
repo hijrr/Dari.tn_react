@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { EnvironmentOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import "./Dashboard.css";
-
+import "../Dashbord/Dashboard.css";
 const Allannonces= () => {
   const [annonces, setAnnonces] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/get/AllAnnonces")
+    fetch("http://localhost:5000/getAnnonces")
       .then((response) => response.json())
       .then((data) => setAnnonces(data))
       .catch((error) =>
