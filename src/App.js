@@ -1,4 +1,6 @@
+
 //import React from "react";
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Register from './components/connexion/register';
@@ -20,23 +22,29 @@ function App() {
   return (
 
     <div className="App">
+
       {/* <Accueil />
-
-   
-
-    <Router>
-      <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard-admin" element={<DashboardAdmin />} />
-
         <Route path="/dashboard-client" element={<DashboardClient />} />
         <Route path="/dashboard-agence" element={<DashboardAgence />} />
         <Route path="/dashboard-proprietaire" element={<DashboardProprietaire />} /> 
       </Routes>
     </Router>*/}
    <PageDashbordPrincipal/>
-     </div>
+  
+
+      <Router>
+        <Routes>
+          <Route path="/" element={<Accueil />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+
+          {/* <Route path="/dashboard-client" element={<DashboardClient />} />
+        <Route path="/dashboard-agence" element={<DashboardAgence />} />
+        <Route path="/dashboard-proprietaire" element={<DashboardProprietaire />} /> */}
+        </Routes>
+      </Router>
+    </div>
   );
 }
 

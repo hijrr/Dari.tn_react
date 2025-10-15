@@ -106,7 +106,7 @@ function Register() {
         setTimeout(() => {
           if (formData.role === "admin") navigate("/dashboard-admin");
           else if (formData.role === "agence") navigate("/dashboard-admin");
-          else if (formData.role === "client") navigate("/dashboard-admin");
+          else if (formData.role === "client") navigate("/dashboard-client");
           else if (formData.role === "proprietaire") navigate("/dashboard-admin");
           else navigate("/");
         }, 2000);
