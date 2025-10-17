@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
 // 🔹 Composants
 import Register from './components/connexion/register';
 import Login from './components/connexion/Login';
@@ -9,11 +8,9 @@ import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
 import ProtectedRoute from "./components/connexion/ProtectedRoute"; 
-
 function App() {
   const [clients, setClients] = useState([]);
   const [error, setError] = useState("");
-
   useEffect(() => {
     axios.get("http://localhost:5000/clients")
       .then(res => setClients(res.data))
@@ -47,7 +44,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* 🔹 Exemple si tu ajoutes plus tard */}
           {/* 
           <Route
@@ -72,5 +68,4 @@ function App() {
     </div>
   );
 }
-
 export default App;

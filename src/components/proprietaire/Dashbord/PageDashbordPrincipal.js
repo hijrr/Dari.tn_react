@@ -1,19 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import DashboardHeader from './DashboardHeader';
 import StatsCards from './StatsCards';
-import Annonces3Dernier from './Annonces3Dernier'
+import Annonces3Dernier from './Annonces3Dernier';
+import AllAnnonces from '../Annonces/Allannonces';
 import './Dashboard.css';
 
 const PageDashbordPrincipal = () => {
+  const [activeComponent, setActiveComponent] = useState("accueil");
+
+  const renderComponent = () => {
+    switch (activeComponent) {
+      case "accueil":
+        return (
+          <>
+            <DashboardHeader />
+            <StatsCards />
+            <Annonces3Dernier />
+          </>
+        );
+      case "annonces":
+        return <AllAnnonces />;
+    
+      default:
+        return (
+          <>
+            <DashboardHeader />
+            <StatsCards />
+            <Annonces3Dernier />
+          </>
+        );
+    }
+  };
+
   return (
     <div className="dashboard-container">
-      <Sidebar />
-      
+      <Sidebar onMenuClick={setActiveComponent} />
       <div className="main-content">
-        <DashboardHeader />
-        <StatsCards />
-        < Annonces3Dernier/>
+        {renderComponent()}
       </div>
     </div>
   );

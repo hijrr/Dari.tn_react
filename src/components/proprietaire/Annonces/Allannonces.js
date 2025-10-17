@@ -3,7 +3,6 @@ import { EnvironmentOutlined, EditOutlined, DeleteOutlined } from "@ant-design/i
 import "../Dashbord/Dashboard.css";
 const Allannonces= () => {
   const [annonces, setAnnonces] = useState([]);
-
   useEffect(() => {
     fetch("http://localhost:5000/getAnnonces")
       .then((response) => response.json())
@@ -12,7 +11,6 @@ const Allannonces= () => {
         console.error("Erreur lors de la récupération des annonces :", error)
       );
   }, []);
-
   // Animation au survol de la carte
   const handleAnnonceHover = (e) => {
     e.currentTarget.style.transform = "translateY(-6px)";
@@ -40,16 +38,31 @@ const Allannonces= () => {
   };
 
   return (
-    <div className="section-container">
-      <div className="section-header">
-        <div>
-          <h2 className="section-title">🏠 Tous Annonces</h2>
-          <p className="section-subtitle">
-            {annonces.length} annonces actives • Gérer vos propriétés
-          </p>
-        </div>
-      </div>
+  
+    <div className="section-container1">
+     <nav class="navbar bg-body-tertiary">
+ <nav className="navbar bg-body-tertiary">
 
+</nav>
+
+</nav>
+       <div className="container-fluid d-flex align-items-center" style={{ height: "60px" }}>
+ <form className="d-flex mx-auto" role="search">
+  <input 
+    className="form-control me-2" 
+    type="search" 
+    placeholder="Rechercher une annonce" 
+    aria-label="Search" 
+    style={{width: "500px", maxWidth: "350px"}}
+  />
+  <button className="btn btn-outline-success d-flex align-items-center" type="submit">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-search me-1" viewBox="0 0 16 16">
+      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+    </svg>
+    Search
+  </button>
+</form>
+  </div>
       <div className="annonces-grid">
         {annonces.map((annonce) => (
           <div
