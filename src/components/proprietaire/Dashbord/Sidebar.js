@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import {
   HomeOutlined,
   AppstoreOutlined,
-  ProfileOutlined,
-  TeamOutlined,
-  DollarOutlined,
-  BarChartOutlined,
+  GiftOutlined,
+  MessageOutlined,
+  PhoneOutlined,
+  CreditCardOutlined,
+  UserOutlined,
   SettingOutlined,
-  LogoutOutlined,
-  UserOutlined
+  LogoutOutlined
 } from "@ant-design/icons";
 import './Dashboard.css';
 
@@ -46,7 +46,7 @@ const Sidebar = ({ onMenuClick }) => {
           <span className="menu-icon">
             <AppstoreOutlined />
           </span>
-          <span className="menu-label">Mes Annonces</span>
+          <span className="menu-label">Annonces</span>
         </li>
 
         <li
@@ -54,9 +54,9 @@ const Sidebar = ({ onMenuClick }) => {
           onClick={() => handleMenuClick("reservations")}
         >
           <span className="menu-icon">
-            <ProfileOutlined />
+            <GiftOutlined />
           </span>
-          <span className="menu-label">Réservations</span>
+          <span className="menu-label">Offres</span>
         </li>
 
         <li
@@ -64,9 +64,9 @@ const Sidebar = ({ onMenuClick }) => {
           onClick={() => handleMenuClick("clients")}
         >
           <span className="menu-icon">
-            <TeamOutlined />
+            <MessageOutlined />
           </span>
-          <span className="menu-label">Clients</span>
+          <span className="menu-label">Demandes Clients</span>
         </li>
 
         <li
@@ -74,9 +74,9 @@ const Sidebar = ({ onMenuClick }) => {
           onClick={() => handleMenuClick("revenus")}
         >
           <span className="menu-icon">
-            <DollarOutlined />
+            <PhoneOutlined />
           </span>
-          <span className="menu-label">Revenus</span>
+          <span className="menu-label">Contact Agence</span>
         </li>
 
         <li
@@ -84,9 +84,9 @@ const Sidebar = ({ onMenuClick }) => {
           onClick={() => handleMenuClick("analytics")}
         >
           <span className="menu-icon">
-            <BarChartOutlined />
+            <CreditCardOutlined />
           </span>
-          <span className="menu-label">Analytics</span>
+          <span className="menu-label">Payment</span>
         </li>
 
         <li
@@ -94,9 +94,9 @@ const Sidebar = ({ onMenuClick }) => {
           onClick={() => handleMenuClick("parametres")}
         >
           <span className="menu-icon">
-            <SettingOutlined />
+            <UserOutlined />
           </span>
-          <span className="menu-label">Paramètres</span>
+          <span className="menu-label">Profil</span>
         </li>
       </ul>
 
