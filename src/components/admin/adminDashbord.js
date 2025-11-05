@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logout from "../connexion/Logout";
 import "./DashboardAdmin.css";
-
 function DashboardAdmin() {
   const [user, setUser] = useState(null);
   const [activeSection, setActiveSection] = useState("dashboard");

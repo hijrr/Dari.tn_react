@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { SearchOutlined, BellOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import './Dashboard.css';
+
 const DashboardHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
   const handleSearchFocus = (e) => {
     e.target.style.borderColor = "var(--color-accent-blue)";
     e.target.style.boxShadow = "0 4px 16px rgba(59, 130, 246, 0.15)";
@@ -42,12 +46,6 @@ const DashboardHeader = () => {
           borderRadius: '12px',
           cursor: 'pointer',
           transition: 'all 0.3s ease'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--color-background-hover)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent';
         }}>
           <div style={{
             width: '36px',
@@ -63,28 +61,26 @@ const DashboardHeader = () => {
             <UserOutlined />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ 
-              fontSize: '14px', 
-              fontWeight: '600', 
-              color: 'var(--color-primary-dark)' 
-            }}>
+            <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-primary-dark)' }}>
               Jean D.
             </span>
-            <span style={{ 
-              fontSize: '12px', 
-              color: 'var(--color-primary-light)' 
-            }}>
+            <span style={{ fontSize: '12px', color: 'var(--color-primary-light)' }}>
               Propriétaire
             </span>
           </div>
         </div>
 
-        <button className="primary-button">
-          <PlusOutlined style={{ fontSize: "16px" }} />
-          Nouvelle Annonce
-        </button>
+  <button
+  className="primary-button"
+  onClick={() => navigate("/dashboard-proprietaire/ajouter-annonce")}
+>
+  <PlusOutlined style={{ fontSize: "16px" }} />
+  Nouvelle Annonce
+</button>
+
       </div>
     </div>
   );
 };
+
 export default DashboardHeader;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom";
 // 🔹 Composants
 import Register from './components/connexion/register';
 import Login from './components/connexion/Login';
@@ -8,6 +8,7 @@ import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
 import ProtectedRoute from "./components/connexion/ProtectedRoute"; 
+import AjouterAnnonce from "./components/proprietaire/Annonces/AjouterAnnonce";
 function App() {
   const [clients, setClients] = useState([]);
   const [error, setError] = useState("");
@@ -44,6 +45,19 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+<Route
+  path="/dashboard-proprietaire/ajouter-annonce"
+  element={
+    <ProtectedRoute roleRequired="proprietaire">
+      <AjouterAnnonce />
+    </ProtectedRoute>
+  }
+/>
+
+
+
+          
           {/* 🔹 Exemple si tu ajoutes plus tard */}
           {/* 
           <Route
@@ -65,6 +79,7 @@ function App() {
           */}
         </Routes>
       </Router>
+      
     </div>
   );
 }
