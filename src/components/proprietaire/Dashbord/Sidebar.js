@@ -50,8 +50,8 @@ const Sidebar = ({ onMenuClick }) => {
         </li>
 
         <li
-          className={`menu-item ${activeMenu === "reservations" ? 'active' : ''}`}
-          onClick={() => handleMenuClick("reservations")}
+          className={`menu-item ${activeMenu === "offres" ? 'active' : ''}`}
+          onClick={() => handleMenuClick("offres")}
         >
           <span className="menu-icon">
             <GiftOutlined />
@@ -70,8 +70,8 @@ const Sidebar = ({ onMenuClick }) => {
         </li>
 
         <li
-          className={`menu-item ${activeMenu === "revenus" ? 'active' : ''}`}
-          onClick={() => handleMenuClick("revenus")}
+          className={`menu-item ${activeMenu === "contact" ? 'active' : ''}`}
+          onClick={() => handleMenuClick("contact")}
         >
           <span className="menu-icon">
             <PhoneOutlined />
@@ -80,18 +80,18 @@ const Sidebar = ({ onMenuClick }) => {
         </li>
 
         <li
-          className={`menu-item ${activeMenu === "analytics" ? 'active' : ''}`}
-          onClick={() => handleMenuClick("analytics")}
+          className={`menu-item ${activeMenu === "paiement" ? 'active' : ''}`}
+          onClick={() => handleMenuClick("paiement")}
         >
           <span className="menu-icon">
             <CreditCardOutlined />
           </span>
-          <span className="menu-label">Payment</span>
+          <span className="menu-label">Paiement</span>
         </li>
 
         <li
-          className={`menu-item ${activeMenu === "parametres" ? 'active' : ''}`}
-          onClick={() => handleMenuClick("parametres")}
+          className={`menu-item ${activeMenu === "profil" ? 'active' : ''}`}
+          onClick={() => handleMenuClick("profil")}
         >
           <span className="menu-icon">
             <UserOutlined />

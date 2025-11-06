@@ -5,6 +5,7 @@ import StatsCards from './StatsCards';
 import Annonces3Dernier from './Annonces3Dernier';
 import AllAnnonces from '../Annonces/Allannonces';
 import './Dashboard.css';
+import Offres from '../Ofrres/offre';
 
 const PageDashbordPrincipal = () => {
   const [activeComponent, setActiveComponent] = useState("accueil");
@@ -21,7 +22,8 @@ const PageDashbordPrincipal = () => {
         );
       case "annonces":
         return <AllAnnonces />;
-    
+      case "offres":
+        return <Offres/>;
       default:
         return (
           <>

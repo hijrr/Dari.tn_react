@@ -54,6 +54,14 @@ function App() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/dashboard-proprietaire/offres"
+  element={
+    <ProtectedRoute roleRequired="proprietaire">
+      <AjouterAnnonce />
+    </ProtectedRoute>
+  }
+/>
 
 
 
