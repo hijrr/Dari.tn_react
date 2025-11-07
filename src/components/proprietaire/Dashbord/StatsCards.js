@@ -1,33 +1,44 @@
-import React from 'react';
-import { CheckCircleOutlined, FileTextOutlined, DollarOutlined, PieChartOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react"; // 🧠 باش نجم نستعمل useState و useEffect
+import axios from "axios"; // 🌐 باش نبعث طلبات HTTP للسيرفر (API)
+import { CheckCircleOutlined, PauseCircleOutlined, UserOutlined, CreditCardOutlined } from "@ant-design/icons";
 import './Dashboard.css';
 const StatsCards = () => {
+  const [activecount,setactivecount]=useState(0);
+  useEffect(() => {
+  axios.get("http://localhost:5000/get/NombreAnnoncesActives")
+    .then(res => setactivecount(res.data))
+    .catch(err => console.error(err));
+}, []);
+
   const statsCards = [
     { 
       title: "Annonces Actives", 
-      value: "24", 
+      value: activecount, 
       icon: <CheckCircleOutlined />,
-      description: "Locations en cours",
-      trend: "+12%",
-      color: "var(--color-accent-green)"
+      color: "var(--color-accent-green)",
+      description: "Locations en cours"
     },
     { 
-      title: "Réservations", 
+      title: "Annonces Inactives", 
+      value: "6", 
+      icon: <PauseCircleOutlined />,
+      color: "var(--color-accent-red)",
+      description: "En attente ou suspendues"
+    },
+    { 
+      title: "Demandes Clients", 
+      value: "142", 
+      icon: <UserOutlined />,
+      color: "var(--color-accent-blue)",
+      description: "Réservations ce mois"
+    },
+    { 
+      title: "Paiements effectués", 
       value: "18", 
-      icon: <FileTextOutlined />,
-      description: "Ce mois",
-      trend: "+8%",
-      color: "var(--color-accent-blue)"
+      icon: <CreditCardOutlined />,
+      color: "var(--color-accent-purple)",
+      description: "Revenus: 12,450€"
     },
-    { 
-      title: "Revenus Mensuels", 
-      value: "12,450€", 
-      icon: <DollarOutlined />,
-      description: "Novembre 2024",
-      trend: "+18%",
-      color: "var(--color-accent-purple)"
-    },
-    
   ];
 
   const handleCardHover = (e) => {
@@ -62,16 +73,6 @@ const StatsCards = () => {
           
           <div className="stats-card-footer">
             <div className="stats-card-description">{stat.description}</div>
-            <div 
-              className="stats-card-trend" 
-              style={{ 
-                color: stat.color,
-                backgroundColor: `${stat.color}15`,
-                borderColor: `${stat.color}30`
-              }}
-            >
-              {stat.trend}
-            </div>
           </div>
         </div>
       ))}
