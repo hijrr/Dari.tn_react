@@ -282,7 +282,7 @@ function GestionDemandes() {
             <div className="chat-input">
               <input
                 type="text"
-                value={message}
+                value={message} 
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tapez votre message..."
                 onKeyPress={(e) => e.key === 'Enter' && envoyerMessage()}
