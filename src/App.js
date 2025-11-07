@@ -3,6 +3,8 @@ import axios from "axios";
 import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom";
 // 🔹 Composants
 import Register from './components/connexion/register';
+import EditProfile from "./components/utilisateur/editProfile/editProfile";
+import Profile from './components/utilisateur/profile';
 import Login from './components/connexion/Login';
 import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
@@ -29,12 +31,16 @@ function App() {
       <Router>
         <Routes>
           {/* 🌍 Pages publiques */}
+<Route path="/editprofile" element={<EditProfile />} />
           <Route path="/" element={<Accueil />} />
           <Route path="/register" element={<Register />} />
+           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
            <Route path="/Gannonces" element={<Gannonces />} />
           <Route path="/Goffres" element={<Goffres />} />
           <Route path="/GUser" element={<GUser />} />
+          
+
           {/* 🔒 Pages protégées selon rôle */}
           <Route
             path="/dashboard-admin"
@@ -72,7 +78,14 @@ function App() {
 />
 
 
-
+<Route
+            path="/dashboard-client"
+            element={
+              <ProtectedRoute roleRequired="client">
+                <Accueil />
+              </ProtectedRoute>
+            }
+          />
           
           {/* 🔹 Exemple si tu ajoutes plus tard */}
           {/* 
