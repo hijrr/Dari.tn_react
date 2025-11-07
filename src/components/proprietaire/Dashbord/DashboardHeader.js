@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import './Dashboard.css';
 
 const DashboardHeader = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+const prenom = user?.prénom;
+const nom = user?.nom;
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -62,7 +65,7 @@ const DashboardHeader = () => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-primary-dark)' }}>
-              Jean D.
+             { nom + ' ' + prenom}
             </span>
             <span style={{ fontSize: '12px', color: 'var(--color-primary-light)' }}>
               Propriétaire

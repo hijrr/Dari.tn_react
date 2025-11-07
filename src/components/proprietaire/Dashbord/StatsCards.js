@@ -3,12 +3,36 @@ import axios from "axios"; // 🌐 باش نبعث طلبات HTTP للسيرف�
 import { CheckCircleOutlined, PauseCircleOutlined, UserOutlined, CreditCardOutlined } from "@ant-design/icons";
 import './Dashboard.css';
 const StatsCards = () => {
-  const [activecount,setactivecount]=useState(0);
-  useEffect(() => {
-  axios.get("http://localhost:5000/get/NombreAnnoncesActives")
-    .then(res => setactivecount(res.data))
+const user = JSON.parse(localStorage.getItem("user"));
+const userId = user?.userId;
+
+const [activecount, setactivecount] = useState(0);
+const [inactivecount, setinactivecount] = useState(0);
+const [demandecount, setdemandecount] = useState(0);
+const [paimenteffecute, setpaimenteffecute] = useState(0);
+
+useEffect(() => {
+  // ✅ Correction : utiliser les backticks ``
+  axios.get(`http://localhost:5000/get/NombreAnnoncesActives/${userId}`)
+    .then(res => setactivecount(res.data.nombreAnnonceActive)) // ✅ Correction : res.data directement car l'API retourne le nombre
     .catch(err => console.error(err));
-}, []);
+}, [userId]); // ✅ Ajouter userId comme dépendance
+  useEffect(() => {
+  axios.get(`http://localhost:5000/get/NombreAnnoncesInactives/${userId}`)
+    .then(res => setinactivecount(res.data.nombreAnnonceINActive ))
+    .catch(err => console.error(err));
+}, [userId]);
+ useEffect(() => {
+  axios.get(`http://localhost:5000/get/NombrdemandeClients/${userId}`)
+    .then(res => setdemandecount(res.data.nombdemandesclinets))
+    .catch(err => console.error(err));
+}, [userId]);
+ useEffect(() => {
+  axios.get(`http://localhost:5000/get/nombrepaimenteffecute/${userId}`)
+    .then(res => setpaimenteffecute(res.data.nombrepaimenteffecute))
+    .catch(err => console.error(err));
+}, [userId]);
+
 
   const statsCards = [
     { 
@@ -20,24 +44,23 @@ const StatsCards = () => {
     },
     { 
       title: "Annonces Inactives", 
-      value: "6", 
+      value: inactivecount, 
       icon: <PauseCircleOutlined />,
       color: "var(--color-accent-red)",
       description: "En attente ou suspendues"
     },
     { 
       title: "Demandes Clients", 
-      value: "142", 
+      value: demandecount, 
       icon: <UserOutlined />,
       color: "var(--color-accent-blue)",
       description: "Réservations ce mois"
     },
     { 
       title: "Paiements effectués", 
-      value: "18", 
+      value: paimenteffecute, 
       icon: <CreditCardOutlined />,
       color: "var(--color-accent-purple)",
-      description: "Revenus: 12,450€"
     },
   ];
 
