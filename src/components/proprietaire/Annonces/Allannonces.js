@@ -20,7 +20,7 @@ const Allannonces= () => {
 
   const handleAnnonceLeave = (e) => {
     e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.boxShadow = "0 4px 20px rgba(0, 0, 0, 0.04)";
+    e.currentTarget.style.boxShadow = "0 4px 20px rgba(0, 0, 0, 0l4)";
     e.currentTarget.style.borderColor = "var(--color-background-hover)";
   };
 

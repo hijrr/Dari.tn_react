@@ -11,6 +11,8 @@ import {
   LogoutOutlined
 } from "@ant-design/icons";
 import './Dashboard.css';
+import Logout from "../../connexion/Logout";
+
 
 const Sidebar = ({ onMenuClick }) => {
   const [activeMenu, setActiveMenu] = useState("accueil");
@@ -117,8 +119,21 @@ const Sidebar = ({ onMenuClick }) => {
             <LogoutOutlined className="logout-icon" />
           </li>
         </ul>
-      </div>
-    </div>
+
+            <div style={{ 
+              fontSize: '12px', 
+              color: 'var(--color-primary-light)' 
+            }}>
+              Propriétaire
+            </div>
+          </div>
+          <Logout style={{ 
+            color: 'var(--color-primary-light)',
+            fontSize: '16px'
+          }} />
+        </div>
+
+      
   );
 };
 

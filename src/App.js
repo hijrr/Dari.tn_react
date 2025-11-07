@@ -8,7 +8,13 @@ import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
 import ProtectedRoute from "./components/connexion/ProtectedRoute"; 
+
 import AjouterAnnonce from "./components/proprietaire/Annonces/AjouterAnnonce";
+
+import Gannonces from "./components/admin/GAnnonce"; 
+import Goffres from "./components/admin/GOffre"; 
+import GUser from "./components/admin/GUser"; 
+
 function App() {
   const [clients, setClients] = useState([]);
   const [error, setError] = useState("");
@@ -26,7 +32,9 @@ function App() {
           <Route path="/" element={<Accueil />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-
+           <Route path="/Gannonces" element={<Gannonces />} />
+          <Route path="/Goffres" element={<Goffres />} />
+          <Route path="/GUser" element={<GUser />} />
           {/* 🔒 Pages protégées selon rôle */}
           <Route
             path="/dashboard-admin"
