@@ -32,7 +32,7 @@ const PageDashbordPrincipal = () => {
           <>
             <DashboardHeader />
             <StatsCards />
-            <Annonces3Dernier />
+            
           </>
         );
     }

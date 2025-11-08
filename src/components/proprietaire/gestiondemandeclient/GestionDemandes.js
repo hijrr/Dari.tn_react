@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './GestionDemandes.css';
 
@@ -9,6 +9,10 @@ function GestionDemandes() {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
   const [filtreStatut, setFiltreStatut] = useState('tous');
+  const [showRefusModal, setShowRefusModal] = useState(false);
+  const [demandeARefuser, setDemandeARefuser] = useState(null);
+  const [raisonRefus, setRaisonRefus] = useState('');
+  const messagesEndRef = useRef(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.userId;
@@ -20,7 +24,17 @@ function GestionDemandes() {
     const fetchDemandes = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/get/demandes/${userId}`);
-        setDemandes(res.data);
+        
+        console.log('Données reçues:', res.data); // Debug
+        
+        // Assurer que chaque demande a un statut (avec le bon nom de la base)
+        const demandesAvecStatut = res.data.map(demande => ({
+          ...demande,
+          demande_statut: demande.demande_statut || 'en attente'
+        }));
+        
+        console.log('Demandes avec statut:', demandesAvecStatut); // Debug
+        setDemandes(demandesAvecStatut);
       } catch (err) {
         console.error('Erreur chargement demandes:', err);
       } finally {
@@ -31,28 +45,107 @@ function GestionDemandes() {
     fetchDemandes();
   }, [userId]);
 
+  // Scroll vers le bas du chat
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
+
+  // Charger les messages avec un client spécifique
+  const chargerMessagesAvecClient = async (clientId) => {
+    if (!clientId) return;
+
+    try {
+      const response = await axios.get(`http://localhost:5000/api/messages/${userId}/${clientId}`);
+      
+      const messagesFormates = response.data.map(msg => ({
+        id: msg.idMesg,
+        contenu: msg.contenu,
+        expediteur: msg.expediteurId === userId ? 'proprietaire' : 'client',
+        date: new Date(msg.dateEnv).toLocaleString('fr-FR'),
+        expediteurId: msg.expediteurId,
+        destinataireId: msg.destinataireId,
+        expediteur_nom: msg.expediteur_nom,
+        expediteur_prenom: msg.expediteur_prenom
+      }));
+
+      setChatMessages(messagesFormates);
+    } catch (err) {
+      console.error('Erreur chargement messages:', err);
+    }
+  };
+
+  // Polling pour les nouveaux messages (toutes les 2 secondes)
+  useEffect(() => {
+    let intervalId;
+    
+    if (selectedDemande) {
+      chargerMessagesAvecClient(selectedDemande.clientId);
+      intervalId = setInterval(() => {
+        chargerMessagesAvecClient(selectedDemande.clientId);
+      }, 2000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDemande]);
+
   // Accepter une demande
   const accepterDemande = async (demandeId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir accepter cette demande ?')) {
+      return;
+    }
+
     try {
       await axios.put(`http://localhost:5000/demandes/${demandeId}/accepter`);
+      
+      // Mettre à jour l'état local avec le bon statut
       setDemandes(demandes.map(d => 
-        d.idDem === demandeId ? { ...d, statu: 'acceptée' } : d
+        d.idDem === demandeId ? { ...d, demande_statut: 'accepte' } : d
       ));
-      alert('✅ Demande acceptée avec succès!');
+      
+      alert('✅ Demande acceptée avec succès! Un message a été envoyé au client.');
     } catch (err) {
       console.error('Erreur acceptation:', err);
       alert('❌ Erreur lors de l\'acceptation');
     }
   };
 
+  // Ouvrir modal de refus
+  const ouvrirModalRefus = (demande) => {
+    setDemandeARefuser(demande);
+    setShowRefusModal(true);
+    setRaisonRefus('');
+  };
+
+  // Fermer modal de refus
+  const fermerModalRefus = () => {
+    setShowRefusModal(false);
+    setDemandeARefuser(null);
+    setRaisonRefus('');
+  };
+
   // Refuser une demande
-  const refuserDemande = async (demandeId) => {
+  const refuserDemande = async () => {
+    if (!demandeARefuser) return;
+
     try {
-      await axios.put(`http://localhost:5000/demandes/${demandeId}/refuser`);
+      await axios.put(`http://localhost:5000/demandes/${demandeARefuser.idDem}/refuser`, {
+        raison: raisonRefus
+      });
+      
+      // Mettre à jour l'état local avec le bon statut
       setDemandes(demandes.map(d => 
-        d.idDem === demandeId ? { ...d, statu: 'refusée' } : d
+        d.idDem === demandeARefuser.idDem ? { ...d, demande_statut: 'refuse' } : d
       ));
-      alert('❌ Demande refusée!');
+      
+      fermerModalRefus();
+      alert('❌ Demande refusée! Un message a été envoyé au client.');
     } catch (err) {
       console.error('Erreur refus:', err);
       alert('❌ Erreur lors du refus');
@@ -60,40 +153,71 @@ function GestionDemandes() {
   };
 
   // Ouvrir le chat
-  const ouvrirChat = (demande) => {
+  const ouvrirChat = async (demande) => {
+    const statut = demande.demande_statut || 'en attente';
+    if (statut !== 'accepte' && statut !== 'en attente') {
+      alert('Vous ne pouvez contacter le client que pour les demandes acceptées ou en attente.');
+      return;
+    }
+
     setSelectedDemande(demande);
-    setChatMessages([]);
+    await chargerMessagesAvecClient(demande.clientId);
   };
 
   // Envoyer un message
   const envoyerMessage = async () => {
     if (!message.trim() || !selectedDemande) return;
 
-    const nouveauMessage = {
-      id: Date.now(),
-      contenu: message,
-      expediteur: 'proprietaire',
-      date: new Date().toLocaleString()
-    };
+    try {
+      // Envoyer le message via l'API (avec notification automatique)
+      await axios.post('http://localhost:5000/api/messages', {
+        contenu: message,
+        expediteurId: userId,
+        destinataireId: selectedDemande.clientId
+      });
 
-    setChatMessages([...chatMessages, nouveauMessage]);
-    setMessage('');
+      // Ajouter le message localement immédiatement
+      const nouveauMessage = {
+        id: Date.now(),
+        contenu: message,
+        expediteur: 'proprietaire',
+        date: new Date().toLocaleString('fr-FR'),
+        expediteurId: userId,
+        destinataireId: selectedDemande.clientId,
+        expediteur_nom: user.nom,
+        expediteur_prenom: user.prénom
+      };
+
+      setChatMessages(prev => [...prev, nouveauMessage]);
+      setMessage('');
+      
+      // Recharger les messages pour s'assurer d'avoir les derniers
+      setTimeout(() => {
+        chargerMessagesAvecClient(selectedDemande.clientId);
+      }, 500);
+    } catch (err) {
+      console.error('Erreur envoi message:', err);
+      alert('Erreur lors de l\'envoi du message');
+    }
   };
 
-  // Filtrer les demandes
+  // Filtrer les demandes - CORRIGÉ avec les bons noms de statut
   const demandesFiltrees = demandes.filter(demande => {
     if (filtreStatut === 'tous') return true;
-    if (filtreStatut === 'en_attente') return !demande.statu || demande.statu === 'en_attente';
-    return demande.statu === filtreStatut;
+    const statut = demande.demande_statut || 'en attente';
+    if (filtreStatut === 'en_attente') return statut === 'en attente';
+    return statut === filtreStatut;
   });
 
-  // Calculer les statistiques
+  // Calculer les statistiques - CORRIGÉ avec les bons noms de statut
   const stats = {
     total: demandes.length,
-    enAttente: demandes.filter(d => !d.statu || d.statu === 'en_attente').length,
-    acceptees: demandes.filter(d => d.statu === 'acceptée').length,
-    refusees: demandes.filter(d => d.statu === 'refusée').length
+    enAttente: demandes.filter(d => (d.demande_statut || 'en attente') === 'en attente').length,
+    acceptees: demandes.filter(d => (d.demande_statut || '') === 'accepte').length,
+    refusees: demandes.filter(d => (d.demande_statut || '') === 'refuse').length
   };
+
+  console.log('Statistiques:', stats); // Debug
 
   if (loading) {
     return (
@@ -129,7 +253,7 @@ function GestionDemandes() {
         </div>
       </div>
 
-      {/* Filtres */}
+      {/* Filtres - CORRIGÉ avec les bons noms */}
       <div className="filtres-section">
         <div className="filtres">
           <button 
@@ -145,14 +269,14 @@ function GestionDemandes() {
             En attente ({stats.enAttente})
           </button>
           <button 
-            className={`filtre-btn ${filtreStatut === 'acceptée' ? 'active' : ''}`}
-            onClick={() => setFiltreStatut('acceptée')}
+            className={`filtre-btn ${filtreStatut === 'accepte' ? 'active' : ''}`}
+            onClick={() => setFiltreStatut('accepte')}
           >
             Acceptées ({stats.acceptees})
           </button>
           <button 
-            className={`filtre-btn ${filtreStatut === 'refusée' ? 'active' : ''}`}
-            onClick={() => setFiltreStatut('refusée')}
+            className={`filtre-btn ${filtreStatut === 'refuse' ? 'active' : ''}`}
+            onClick={() => setFiltreStatut('refuse')}
           >
             Refusées ({stats.refusees})
           </button>
@@ -170,80 +294,133 @@ function GestionDemandes() {
           </div>
         ) : (
           <div className="demandes-grid">
-            {demandesFiltrees.map(demande => (
-              <div key={demande.idDem} className={`demande-card ${demande.statu || 'en_attente'}`}>
-                <div className="demande-header">
-                  <h3>{demande.annonce_titre}</h3>
-                  <span className={`statut-badge ${demande.statu || 'en_attente'}`}>
-                    {demande.statu || 'en_attente'}
-                  </span>
-                </div>
-                
-                <div className="demande-info">
-                  <div className="info-item">
-                    <span className="info-label">👤 Client:</span>
-                    <span>{demande.client_nom} {demande.client_prenom}</span>
+            {demandesFiltrees.map(demande => {
+              const statut = demande.demande_statut || 'en attente';
+              console.log('Demande:', demande.idDem, 'Statut:', statut); // Debug
+              
+              return (
+                <div key={demande.idDem} className={`demande-card ${statut.replace(' ', '_')}`}>
+                  <div className="demande-header">
+                    <h3>{demande.annonce_titre}</h3>
+                    <span className={`statut-badge ${statut.replace(' ', '_')}`}>
+                      {statut === 'en attente' ? 'En attente' : 
+                       statut === 'accepte' ? 'Acceptée' : 'Refusée'}
+                    </span>
                   </div>
-                  <div className="info-item">
-                    <span className="info-label">📧 Email:</span>
-                    <span>{demande.client_email}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">📞 Téléphone:</span>
-                    <span>{demande.client_telephone}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">📍 Localisation:</span>
-                    <span>{demande.localisation}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">🏠 Type:</span>
-                    <span>{demande.type}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">📅 Date demande:</span>
-                    <span>{new Date(demande.dateDem).toLocaleDateString()}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">⏱️ Durée:</span>
-                    <span>{demande.duree}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">💰 Prix:</span>
-                    <span className="prix">{demande.annonce_prix} DT</span>
-                  </div>
-                </div>
-
-                <div className="demande-actions">
-                  {(demande.statu === 'en_attente' || !demande.statu) && (
-                    <>
-                      <button 
-                        className="btn-accepter"
-                        onClick={() => accepterDemande(demande.idDem)}
-                      >
-                        ✅ Accepter
-                      </button>
-                      <button 
-                        className="btn-refuser"
-                        onClick={() => refuserDemande(demande.idDem)}
-                      >
-                        ❌ Refuser
-                      </button>
-                    </>
-                  )}
                   
-                  <button 
-                    className="btn-chat"
-                    onClick={() => ouvrirChat(demande)}
-                  >
-                    💬 Contacter
-                  </button>
+                  <div className="demande-info">
+                    <div className="info-item">
+                      <span className="info-label">👤 Client:</span>
+                      <span>{demande.client_nom} {demande.client_prenom}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">📧 Email:</span>
+                      <span>{demande.client_email}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">📞 Téléphone:</span>
+                      <span>{demande.client_telephone}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">📍 Localisation:</span>
+                      <span>{demande.localisation}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">🏠 Type:</span>
+                      <span>{demande.type}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">📅 Date demande:</span>
+                      <span>{new Date(demande.dateDem).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">⏱️ Durée:</span>
+                      <span>{demande.duree}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">💰 Prix:</span>
+                      <span className="prix">{demande.annonce_prix} DT</span>
+                    </div>
+                  </div>
+
+                  {/* SECTION DES ACTIONS - CORRIGÉE avec les bons noms de statut */}
+                  <div className="demande-actions">
+                    {/* En attente : Accepter + Refuser */}
+                    {(statut === 'en attente') && (
+                      <>
+                        <button 
+                          className="btn-accepter"
+                          onClick={() => accepterDemande(demande.idDem)}
+                        >
+                          ✅ Accepter
+                        </button>
+                        <button 
+                          className="btn-refuser"
+                          onClick={() => ouvrirModalRefus(demande)}
+                        >
+                          ❌ Refuser
+                        </button>
+                      </>
+                    )}
+                    
+                    {/* Acceptée : Contacter seulement */}
+                    {(statut === 'accepte') && (
+                      <button 
+                        className="btn-chat"
+                        onClick={() => ouvrirChat(demande)}
+                      >
+                        💬 Contacter
+                      </button>
+                    )}
+                    
+                    {/* Refusée : Aucun bouton */}
+                    {(statut === 'refuse') && (
+                      <div className="demande-refusee">
+                        <p className="text-refusee">❌ Demande refusée</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
+
+      {/* Modal de refus */}
+      {showRefusModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>❌ Refuser la demande</h3>
+              <button className="btn-fermer" onClick={fermerModalRefus}>✕</button>
+            </div>
+            <div className="modal-body">
+              <p>Vous êtes sur le point de refuser la demande pour :</p>
+              <p className="annonce-titre"><strong>{demandeARefuser?.annonce_titre}</strong></p>
+              
+              <div className="form-group">
+                <label htmlFor="raison">Raison du refus (optionnel) :</label>
+                <textarea
+                  id="raison"
+                  value={raisonRefus}
+                  onChange={(e) => setRaisonRefus(e.target.value)}
+                  placeholder="Expliquez brièvement la raison de votre refus..."
+                  rows="4"
+                />
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={fermerModalRefus}>
+                Annuler
+              </button>
+              <button className="btn-refuser" onClick={refuserDemande}>
+                Confirmer le refus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chat Modal */}
       {selectedDemande && (
@@ -251,6 +428,12 @@ function GestionDemandes() {
           <div className="chat-container">
             <div className="chat-header">
               <h3>💬 Chat avec {selectedDemande.client_nom}</h3>
+              <div className="chat-status">
+                <span className="statut-badge small">
+                  {selectedDemande.demande_statut === 'en attente' ? 'En attente' : 
+                   selectedDemande.demande_statut === 'accepte' ? 'Acceptée' : 'Refusée'}
+                </span>
+              </div>
               <button 
                 className="btn-fermer"
                 onClick={() => setSelectedDemande(null)}
@@ -263,20 +446,24 @@ function GestionDemandes() {
               {chatMessages.length === 0 ? (
                 <div className="no-messages">
                   <p>Aucun message échangé pour le moment</p>
-                  <p>Soyez le premier à envoyer un message !</p>
+                  <p>Envoyez le premier message !</p>
                 </div>
               ) : (
                 chatMessages.map(msg => (
                   <div key={msg.id} className={`message ${msg.expediteur}`}>
+                    <div className="message-header">
+                      <span className="message-sender">
+                        {msg.expediteur === 'proprietaire' ? 'Vous' : selectedDemande.client_nom}
+                      </span>
+                      <span className="message-time">{msg.date}</span>
+                    </div>
                     <div className="message-content">
                       {msg.contenu}
-                    </div>
-                    <div className="message-time">
-                      {msg.date}
                     </div>
                   </div>
                 ))
               )}
+              <div ref={messagesEndRef} />
             </div>
 
             <div className="chat-input">
@@ -288,7 +475,7 @@ function GestionDemandes() {
                 onKeyPress={(e) => e.key === 'Enter' && envoyerMessage()}
               />
               <button onClick={envoyerMessage} disabled={!message.trim()}>
-                📤
+                📤 Envoyer
               </button>
             </div>
           </div>

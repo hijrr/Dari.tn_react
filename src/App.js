@@ -10,13 +10,11 @@ import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
 import ProtectedRoute from "./components/connexion/ProtectedRoute"; 
-
 import AjouterAnnonce from "./components/proprietaire/Annonces/AjouterAnnonce";
-
 import Gannonces from "./components/admin/GAnnonce"; 
 import Goffres from "./components/admin/GOffre"; 
 import GUser from "./components/admin/GUser"; 
-
+import ModifierAnnonce from "./components/proprietaire/Annonces/ModifierAnnonce";
 function App() {
   const [clients, setClients] = useState([]);
   const [error, setError] = useState("");
@@ -50,7 +48,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/dashboard-proprietaire"
             element={
@@ -106,6 +103,7 @@ function App() {
             }
           />
           */}
+          <Route path="/modifier-annonce/:id" element={<ModifierAnnonce />} />
         </Routes>
       </Router>
       
