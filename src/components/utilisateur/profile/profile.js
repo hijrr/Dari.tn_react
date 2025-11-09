@@ -2,58 +2,55 @@ import React, { useState, useRef, useEffect } from "react";
 import "./profile.css";
 import Header from "../../Header";
 import axios from "axios";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const [user, setUser] = useState(null); // sera chargé depuis la base
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
+  const [favoris, setFavoris] = useState([]); // favoris dynamiques
 
-  // --- États pour favoris (locaux pour la démo) ---
-  const [favoris, setFavoris] = useState([
-    {
-      id: 1,
-      type: "Maison S+3",
-      prix: "5000t",
-      duree: "pour nuit",
-      ville: "Sousse-Sahloui",
-      tel: "27345675",
-      image: "/images/maison1.jpg",
-    },
-    {
-      id: 2,
-      type: "Maison S+2",
-      prix: "5000t",
-      duree: "pour 5 nuits",
-      ville: "Sousse-Nrzema",
-      tel: "50400123",
-      image: "/images/maison2.jpg",
-    },
-  ]);
-
-  // --- Charger les infos utilisateur ---
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
-        if (!storedUser || !storedUser.userId) {
-          alert("Utilisateur non connecté !");
-          return;
-        }
-
-        const res = await axios.get(
-          `http://localhost:5000/api/utilisateur/connecte/${storedUser.userId}`
-        );
-        console.log(res);
-        setUser(res.data);
-      } catch (err) {
-        console.error("Erreur lors du chargement de l'utilisateur :", err);
-        alert("Impossible de charger les données du profil !");
+  const fetchUser = async () => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (!storedUser || !storedUser.userId) {
+        alert("Utilisateur non connecté !");
+        return;
       }
-    };
 
-    fetchUser();
-  }, []);
+      const resUser = await axios.get(
+        `http://localhost:5000/api/utilisateur/connecte/${storedUser.userId}`
+      );
+      setUser(resUser.data);
+    } catch (err) {
+      console.error("Erreur chargement profil :", err);
+      alert("Impossible de charger le profil !");
+    }
+  };
+
+  fetchUser();
+}, []);
+
+useEffect(() => {
+  const fetchFavoris = async () => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (!storedUser || !storedUser.userId) return;
+
+      const resFavoris = await axios.get(
+        `http://localhost:5000/api/favoris/${storedUser.userId}`
+      );
+      console.log("Favoris récupérés :", resFavoris.data);
+      setFavoris(resFavoris.data);
+    } catch (err) {
+      console.error("Erreur chargement favoris :", err);
+      alert("Impossible de charger les favoris !");
+    }
+  };
+
+  fetchFavoris();
+}, []);
 
   // --- Ouvrir le sélecteur de fichiers ---
   const handleImageClick = () => {
@@ -80,7 +77,7 @@ const Profile = () => {
 
     const formData = new FormData();
     formData.append("profileImage", file);
-    formData.append("userId", user.userId); // ✅ on utilise userId (pas id)
+    formData.append("userId", user.userId);
 
     try {
       const res = await axios.post(
@@ -106,14 +103,24 @@ const Profile = () => {
     }
   };
 
-  // --- Supprimer un favori ---
-  const handleRemoveFavori = (favoriId) => {
-    setFavoris((prev) => prev.filter((favori) => favori.id !== favoriId));
-  };
+  // --- Supprimer un favori localement ---
+ // Fonction pour retirer un favori du state
+// Fonction pour retirer un favori
+const handleRemoveFavori = async (idFav) => {
+  try {
+    // Appel à l'API pour supprimer le favori dans la base
+    await axios.delete(`http://localhost:5000/api/favoris/${idFav}`);
+
+    // Mettre à jour le state pour retirer le favori de l'affichage
+    setFavoris((prev) => prev.filter((favori) => favori.idFav !== idFav));
+  } catch (err) {
+    console.error("Erreur suppression favori :", err);
+    alert("Impossible de retirer le favori !");
+  }
+};
 
   if (!user) return <p>Chargement du profil...</p>;
 
-  // --- URL finale de la photo ---
   const displayUrl = user.profileImage?.startsWith("http")
     ? user.profileImage
     : user.profileImage
@@ -183,11 +190,11 @@ const Profile = () => {
             <h2 className="section-title">Mes Favoris ({favoris.length})</h2>
             <div className="favoris-grid">
               {favoris.map((favori) => (
-                <div key={favori.id} className="favori-card">
+                <div key={favori.idAnnonce} className="favori-card">
                   <div className="favori-image">
                     <img
                       src={favori.image}
-                      alt={favori.type}
+                      alt={favori.titre || favori.type}
                       onError={(e) => {
                         e.target.style.display = "none";
                         e.target.nextSibling.style.display = "flex";
@@ -199,15 +206,13 @@ const Profile = () => {
                   <div className="favori-content">
                     <div className="favori-header">
                       <h3 className="favori-type">{favori.type}</h3>
-                      <div className="favori-prix">
-                        {favori.prix} {favori.duree}
-                      </div>
+                      <div className="favori-prix">{favori.prix}</div>
                     </div>
 
                     <div className="favori-details">
                       <div className="favori-ville">
                         <span className="detail-label">Ville :</span>
-                        <span className="detail-value">{favori.ville}</span>
+                        <span className="detail-value">{favori.localisation}</span>
                       </div>
                       <div className="favori-tel">
                         <span className="detail-label">Tél :</span>
@@ -216,12 +221,10 @@ const Profile = () => {
                     </div>
 
                     <div className="favori-actions">
-                      <button className="action-btn contact-btn">
-                        Contacter
-                      </button>
+                      <button className="action-btn contact-btn">Contacter</button>
                       <button
                         className="action-btn remove-btn"
-                        onClick={() => handleRemoveFavori(favori.id)}
+                        onClick={() => handleRemoveFavori(favori.idFav)}
                       >
                         Retirer
                       </button>
@@ -236,12 +239,9 @@ const Profile = () => {
           <div className="actions-section">
             <div className="action-buttons">
               <Link to="/editprofile">
-              <button className="action-btn primary-btn">
-                ✏️ Modifier Profil
-              </button></Link>
-              <button className="action-btn secondary-btn">
-                🔔 Notifications
-              </button>
+                <button className="action-btn primary-btn">✏️ Modifier Profil</button>
+              </Link>
+              <button className="action-btn secondary-btn">🔔 Notifications</button>
             </div>
           </div>
         </div>
