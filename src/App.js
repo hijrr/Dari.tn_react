@@ -16,6 +16,7 @@ import AjouterAnnonce from "./components/proprietaire/Annonces/AjouterAnnonce";
 import Gannonces from "./components/admin/GAnnonce"; 
 import Goffres from "./components/admin/GOffre"; 
 import GUser from "./components/admin/GUser"; 
+import ModifierAnnonce from"./components/proprietaire/Annonces/ModifierAnnonce.js";
 
 function App() {
   const [clients, setClients] = useState([]);
