@@ -19,11 +19,11 @@ const Header = () => {
     setUser(null);
     window.location.href = "/"; // redirige vers l'accueil
   };
-// Fonction pour le bouton profil
+  // Fonction pour le bouton profil
   const handleProfileClick = () => {
     console.log('Profil utilisateur cliqué');
     // Ici vous pouvez ajouter la navigation vers la page profil
-     window.location.href = "/profile";
+    window.location.href = "/profile";
   };
   return (
     <header className="header">
@@ -38,38 +38,38 @@ const Header = () => {
             <a href="#annonces" className="nav-link">Annonces</a>
             <a href="#contact" className="nav-link">Contact</a>
 
-            {user ? 
-            (
-            <div className="user-container">
+            {user ?
+              (
+                <div className="user-container">
 
-                <button className="profile-btn" onClick={handleProfileClick}>
-                   <img
-    src={
-      user.profileImage
-        ? user.profileImage.startsWith("http")
-          ? user.profileImage
-          : `http://localhost:5000${user.profileImage}`
-        : "/images/default-avatar.png"
-    }
-    alt="Profil"
-    className="user-avatar-img"
-    onError={(e) => {
-      e.target.src = "/images/default-avatar.png";
-    }}
-  />
-                  <span className="user-name">
-                    {user.prénom} {user.nom}
-                  </span>
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>
-                  Déconnexion
-                </button>
-              </div>
-            ) : (
-              <Link to="/login">
-                <button className="login-btn">Connexion</button>
-              </Link>
-            )}
+                  <button className="profile-btn" onClick={handleProfileClick}>
+                    <img
+                      src={
+                        user.profileImage
+                          ? user.profileImage.startsWith("http")
+                            ? user.profileImage
+                            : `http://localhost:5000${user.profileImage}`
+                          : "/images/default-avatar.png"
+                      }
+                      alt="Profil"
+                      className="user-avatar-img"
+                      onError={(e) => {
+                        e.target.src = "/images/default-avatar.png";
+                      }}
+                    />
+                    <span className="user-name">
+                      {user.prénom} {user.nom}
+                    </span>
+                  </button>
+                  <button className="logout-btn" onClick={handleLogout}>
+                    Déconnexion
+                  </button>
+                </div>
+              ) : (
+                <Link to="/login">
+                  <button className="login-btn">Connexion</button>
+                </Link>
+              )}
           </nav>
         </div>
       </div>

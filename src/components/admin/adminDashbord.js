@@ -12,6 +12,7 @@ function DashboardAdmin() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const [annonces, setAnnonces] = useState([]);
+ 
   const [stats, setStats] = useState({
     utilisateurs: 0,
     annonces: 0,
@@ -96,11 +97,11 @@ function DashboardAdmin() {
       });
       
       console.log("Réponse serveur:", response.data);
-      alert("Statut de l'annonce mis à jour avec succès !");
+     
       
     } catch (err) {
       console.error("Erreur modification statut :", err);
-      alert("Erreur lors de la modification du statut");
+      
       // Recharger les données originales en cas d'erreur
       fetchAnnonces();
     }
@@ -113,11 +114,11 @@ function DashboardAdmin() {
         .delete(`http://localhost:5000/annonces/${idAnnonce}`)
         .then(() => {
           setAnnonces(prev => prev.filter(a => a.idAnnonce !== idAnnonce));
-          alert("Annonce supprimée avec succès !");
+         
         })
         .catch(err => {
           console.error("Erreur suppression :", err);
-          alert("Erreur lors de la suppression de l'annonce");
+         
         });
     }
   };
@@ -138,11 +139,11 @@ function DashboardAdmin() {
             user.userId === userId ? { ...user, role: newRole } : user
           )
         );
-        alert("Rôle mis à jour avec succès !");
+       
       })
       .catch((err) => {
         console.error("Erreur lors de la modification du rôle :", err);
-        alert("Erreur lors de la modification du rôle");
+       
       });
   };
 
@@ -172,7 +173,8 @@ function DashboardAdmin() {
       id: "dashboard",
       title: "Tableau de Bord",
       icon: "fas fa-chart-line",
-      component: <DashboardOverview stats={stats} activities={activities} />
+      component: <DashboardOverview stats={stats} activities={activities} user={user}
+      handleProfileClick={() => navigate("/profile")}/>
     },
     {
       id: "annonces",
@@ -259,6 +261,7 @@ function DashboardAdmin() {
 
       {/* Main Content */}
       <div className="main-content">
+
         <header className="content-header">
           <div className="header-left">
             <h1>{menuItems.find(item => item.id === activeSection)?.title}</h1>
@@ -293,7 +296,7 @@ const getIcon = (type) => {
 };
 
 // Composant Tableau de Bord
-function DashboardOverview({ stats, activities }) {
+function DashboardOverview({ stats, activities, user, handleProfileClick }) {
   if (!stats) {
     return <p>Chargement des statistiques...</p>;
   }
@@ -318,6 +321,25 @@ function DashboardOverview({ stats, activities }) {
             </div>
           </div>
         ))}
+        {/* <button className="profile-btn" onClick={handleProfileClick}>
+                    <img
+                      src={
+                        user.profileImage
+                          ? user.profileImage.startsWith("http")
+                            ? user.profileImage
+                            : `http://localhost:5000${user.profileImage}`
+                          : "/images/default-avatar.png"
+                      }
+                      alt="Profil"
+                      className="user-avatar-img"
+                      onError={(e) => {
+                        e.target.src = "/images/default-avatar.png";
+                      }}
+                    />
+                    <span className="user-name">
+                      {user.prénom} {user.nom}
+                    </span>
+                  </button> */}
       </div>
 
       <div className="recent-activity">
