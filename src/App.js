@@ -10,12 +10,13 @@ import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
 import ProtectedRoute from "./components/connexion/ProtectedRoute"; 
-
+import DetailAnnonce from"./components/utilisateur/detailAnnonce/DetailAnnonce";
+import ListeAnnonces from"./components/utilisateur/listeAnnonces/listeAnnonces";
 import AjouterAnnonce from "./components/proprietaire/Annonces/AjouterAnnonce";
-
 import Gannonces from "./components/admin/GAnnonce"; 
 import Goffres from "./components/admin/GOffre"; 
 import GUser from "./components/admin/GUser"; 
+import ModifierAnnonce from"./components/proprietaire/Annonces/ModifierAnnonce.js";
 
 function App() {
   const [clients, setClients] = useState([]);
@@ -33,6 +34,8 @@ function App() {
           {/* 🌍 Pages publiques */}
 <Route path="/editprofile" element={<EditProfile />} />
           <Route path="/" element={<Accueil />} />
+           <Route path="/annonce/:id" element={<DetailAnnonce/>} />
+          <Route path="/filter" element={<ListeAnnonces/>} />
           <Route path="/register" element={<Register />} />
            <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
@@ -50,7 +53,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/dashboard-proprietaire"
             element={
@@ -106,6 +108,7 @@ function App() {
             }
           />
           */}
+          <Route path="/modifier-annonce/:id" element={<ModifierAnnonce />} />
         </Routes>
       </Router>
       

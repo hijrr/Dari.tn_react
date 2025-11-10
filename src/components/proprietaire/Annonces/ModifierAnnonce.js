@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useParams, useNavigate } from "react-router-dom";
 import "./ajouterAn.css";
 
 const validTypes = ["appartement", "maison", "studio", "bureau", "villa"];
 
-function AjouterAnnonce() {
+function ModifierAnnonce() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     titre: "",
     description: "",
@@ -20,12 +23,84 @@ function AjouterAnnonce() {
   const [userId, setUserId] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [originalImage, setOriginalImage] = useState("");
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser && storedUser.userId) setUserId(storedUser.userId);
-  }, []);
+    if (storedUser && storedUser.userId) {
+      setUserId(storedUser.userId);
+      fetchAnnonce();
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Connexion requise',
+        text: 'Veuillez vous connecter pour modifier une annonce',
+        confirmButtonColor: '#000'
+      }).then(() => navigate('/login'));
+    }
+  }, [id]);
+
+  // Récupérer les données de l'annonce
+  const fetchAnnonce = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/annonces/${id}`);
+      const annonce = response.data;
+      
+      console.log('Annonce récupérée:', annonce);
+      
+      setFormData({
+        titre: annonce.titre || "",
+        description: annonce.description || "",
+        prix: annonce.prix || "",
+        image: annonce.image || "",
+        localisation: annonce.localisation || "",
+        type: annonce.type || "",
+        duree: annonce.duree || ""
+      });
+
+      if (annonce.image) {
+        // Corriger l'URL de l'image si nécessaire
+        const imageUrl = corrigerUrlImage(annonce.image);
+        setPreviewImage(imageUrl);
+        setOriginalImage(imageUrl);
+      }
+
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Erreur récupération annonce:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'Impossible de charger l\'annonce',
+        confirmButtonColor: '#000'
+      }).then(() => navigate('/mes-annonces'));
+    }
+  };
+
+  // Fonction pour corriger les URLs d'images
+  const corrigerUrlImage = (urlImage) => {
+    if (!urlImage) return null;
+    
+    if (urlImage.startsWith('http')) {
+      return urlImage;
+    }
+    
+    if (urlImage.startsWith('/uploadsAnnonce')) {
+      return `http://localhost:5000${urlImage}`;
+    }
+    
+    if (urlImage.startsWith('uploadsAnnonce')) {
+      return `http://localhost:5000/${urlImage}`;
+    }
+    
+    if (!urlImage.includes('/')) {
+      return `http://localhost:5000/uploadsAnnonce/${urlImage}`;
+    }
+    
+    return urlImage;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +118,6 @@ function AjouterAnnonce() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validation du fichier
     if (!file.type.startsWith('image/')) {
       Swal.fire({
         icon: 'error',
@@ -64,7 +138,6 @@ function AjouterAnnonce() {
       return;
     }
 
-    // Prévisualisation immédiate
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreviewImage(e.target.result);
@@ -84,13 +157,10 @@ function AjouterAnnonce() {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
-          timeout: 30000 // 30 secondes timeout
+          timeout: 30000
         }
       );
 
-      console.log('Réponse upload:', response.data);
-
-      // Mettre à jour avec l'URL complète retournée par le serveur
       setFormData(prev => ({
         ...prev,
         image: response.data.imageUrl
@@ -120,7 +190,7 @@ function AjouterAnnonce() {
         text: errorMessage,
         confirmButtonColor: '#000'
       });
-      setPreviewImage("");
+      setPreviewImage(originalImage);
     } finally {
       setIsUploading(false);
     }
@@ -227,7 +297,7 @@ function AjouterAnnonce() {
       Swal.fire({
         icon: 'warning',
         title: 'Connexion requise',
-        text: 'Veuillez vous connecter pour ajouter une annonce',
+        text: 'Veuillez vous connecter pour modifier une annonce',
         confirmButtonColor: '#000'
       });
       return false;
@@ -251,39 +321,30 @@ function AjouterAnnonce() {
     if (!validateForm()) return;
 
     try {
-      console.log('Envoi des données:', formData);
+      console.log('Envoi des données de modification:', formData);
       
-      const response = await axios.post("http://localhost:5000/api/annonces", { 
+      const response = await axios.put(`http://localhost:5000/api/annonces/${id}`, { 
         ...formData, 
         userId 
       });
       
-      console.log('Réponse création annonce:', response.data);
+      console.log('Réponse modification annonce:', response.data);
       
       await Swal.fire({
         icon: 'success',
         title: 'Succès!',
-        text: 'Annonce ajoutée avec succès!',
+        text: 'Annonce modifiée avec succès!',
         confirmButtonColor: '#000',
         timer: 3000
       });
 
-      // Reset form
-      setFormData({
-        titre: "", description: "", prix: "", image: "",
-        localisation: "", type: "", duree: ""
-      });
-      setErrors({});
-      setPreviewImage("");
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      navigate('/mes-annonces');
     } catch (err) {
-      console.error('Erreur création annonce:', err);
+      console.error('Erreur modification annonce:', err);
       Swal.fire({
         icon: 'error',
         title: 'Erreur',
-        text: err.response?.data?.message || "Erreur lors de l'ajout de l'annonce",
+        text: err.response?.data?.message || "Erreur lors de la modification de l'annonce",
         confirmButtonColor: '#000'
       });
     }
@@ -293,11 +354,38 @@ function AjouterAnnonce() {
     validateField(e.target.name, e.target.value);
   };
 
+  const handleCancel = () => {
+    Swal.fire({
+      title: 'Annuler les modifications?',
+      text: 'Les changements non sauvegardés seront perdus',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#000',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, annuler',
+      cancelButtonText: 'Continuer l\'édition'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/dashboard-proprietaire');
+      }
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="annonce-container">
+        <div className="annonce-card">
+          <div className="loading-text">Chargement de l'annonce...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="annonce-container">
       <div className="annonce-card">
         <h2 className="annonce-title">
-          <span className="icon">🏠</span> Ajouter une Annonce
+          <span className="icon">✏️</span> Modifier l'Annonce
         </h2>
         <form onSubmit={handleSubmit} className="annonce-form">
           <div className="form-group">
@@ -380,11 +468,7 @@ function AjouterAnnonce() {
                 <button type="button" onClick={removeImage} className="remove-image-btn">
                   ✕ Supprimer
                 </button>
-                {formData.image && (
-                  <div className="image-url-info">
-                    <small>URL: {formData.image}</small>
-                  </div>
-                )}
+               
               </div>
             ) : (
               <div 
@@ -442,18 +526,27 @@ function AjouterAnnonce() {
             </div>
           </div>
           
-          <button 
-            type="submit" 
-            className="submit-button"
-            disabled={isUploading}
-          >
-            <span className="button-icon">➕</span> 
-            {isUploading ? 'Upload en cours...' : 'Publier l\'annonce'}
-          </button>
+          <div className="form-buttons">
+            <button 
+              type="button" 
+              onClick={handleCancel}
+              className="cancel-button"
+            >
+              <span className="button-icon">↶</span> Annuler
+            </button>
+            <button 
+              type="submit" 
+              className="submit-button"
+              disabled={isUploading}
+            >
+              <span className="button-icon">💾</span> 
+              {isUploading ? 'Upload en cours...' : 'Sauvegarder les modifications'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
   );
 }
 
-export default AjouterAnnonce;
+export default ModifierAnnonce;

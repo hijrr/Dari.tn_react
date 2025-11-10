@@ -35,7 +35,7 @@ const Header = () => {
 
           <nav className="nav">
             <a href="/" className="nav-link active">Accueil</a>
-            <a href="#annonces" className="nav-link">Annonces</a>
+            <a href="/filter" className="nav-link">Annonces</a>
             <a href="#contact" className="nav-link">Contact</a>
 
             {user ?
