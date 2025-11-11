@@ -71,6 +71,14 @@ function App() {
   }
 />
 <Route
+  path="/dashboard-proprietaire/contactAgence"
+  element={
+    <ProtectedRoute roleRequired="proprietaire">
+      <AjouterAnnonce />
+    </ProtectedRoute>
+  }
+/>
+<Route
   path="/dashboard-proprietaire/offres"
   element={
     <ProtectedRoute roleRequired="proprietaire">
