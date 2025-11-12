@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import Notif from "../utilisateur/notification_client/notifClient";
 import './Header.css';
 import { Link } from 'react-router-dom';
+
+
 
 const Header = () => {
   const [user, setUser] = useState(null);
@@ -35,13 +38,13 @@ const Header = () => {
 
           <nav className="nav">
             <a href="/" className="nav-link active">Accueil</a>
-            <a href="/filter" className="nav-link">Annonces</a>
             <a href="#contact" className="nav-link">Contact</a>
 
             {user ? 
             (
+              
             <div className="user-container">
-
+             <a href="/filter" className="nav-link">Annonces</a>
                 <button className="profile-btn" onClick={handleProfileClick}>
                    <img
     src={
@@ -60,7 +63,7 @@ const Header = () => {
                   <span className="user-name">
                     {user.prénom} {user.nom}
                   </span>
-                </button>
+                </button><Notif/>
                 <button className="logout-btn" onClick={handleLogout}>
                   Déconnexion
                 </button>

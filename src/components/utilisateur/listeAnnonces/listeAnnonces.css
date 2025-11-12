@@ -7,6 +7,7 @@
   max-width: 1200px;
   margin: 0 auto;
   margin-top: 50px;
+  margin-bottom: 50px;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   padding: 30px;
@@ -164,75 +165,105 @@
 
 .annonces-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 25px;
-  margin-top: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
 }
 
 .annonce-card {
-  background: white;
-  border: 2px solid rgba(102, 126, 234, 0.1);
-  border-radius: 15px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .annonce-card:hover {
-  transform: translateY(-8px);
-  border-color: #667eea;
-  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.annonce-img-container {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
 }
 
 .annonce-img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
 .annonce-card:hover .annonce-img {
   transform: scale(1.05);
 }
 
-.annonce-info {
-  padding: 20px;
-}
-
-.annonce-info h3 {
-  color: #2d3748;
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  line-height: 1.3;
-}
-
-.annonce-info p {
-  color: #718096;
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-
-.annonce-info strong {
-  color: #667eea;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-/* Badge pour le type */
-.annonce-card::before {
-  content: attr(data-type);
+.annonce-type {
   position: absolute;
-  top: 15px;
-  left: 15px;
-  background: #667eea;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  bottom: 10px;
+  left: 10px;
+  background: #007bff;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.annonce-info {
+  padding: 15px;
+}
+
+.annonce-title {
+  font-size: 1.1rem;
   font-weight: 600;
-  z-index: 2;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.annonce-location {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.annonce-location i {
+  color: #007bff;
+  margin-right: 6px;
+}
+
+.annonce-price {
+  font-size: 1rem;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+.annonce-duration {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.details-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+  font-weight: 500;
+  -webkit-transition: background 0.3s ease;
+  -moz-transition: background 0.3s ease;
+  -ms-transition: background 0.3s ease;
+  -o-transition: background 0.3s ease;
+}
+
+.details-btn:hover {
+  background: #0056b3;
 }
 
 .no-results {

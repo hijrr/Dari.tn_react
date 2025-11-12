@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import "./detailAnnonce.css";
 import Header from "../../Header";
 import ShowMap from "./ShowMap";
+import Footer from "../../footer"
 
 const DetailAnnonce = () => {
   const { id } = useParams();
@@ -259,6 +260,7 @@ const DetailAnnonce = () => {
 
         
       </div>
+       <Footer/>
     </div>
   );
 };

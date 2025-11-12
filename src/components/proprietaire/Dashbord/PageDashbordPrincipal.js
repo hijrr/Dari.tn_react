@@ -8,7 +8,7 @@ import './Dashboard.css';
 import Offres from '../Ofrres/offre';
 import GestionDemandes from '../gestiondemandeclient/GestionDemandes';
 import AgenceCard from '../ContactAgence/AgenceCard';
-import ProfilProp from '../profilProp/ ProfilProp ';
+
 const PageDashbordPrincipal = () => {
   const [activeComponent, setActiveComponent] = useState("accueil");
 
@@ -30,8 +30,7 @@ const PageDashbordPrincipal = () => {
         return <AgenceCard/>;
         case "clients":
         return <GestionDemandes/>;
-          case "profilee":
-        return <ProfilProp/>;
+          
      case "contact":
   return <AgenceCard/>;
       default:

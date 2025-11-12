@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-rou
 // 🔹 Composants
 import Register from './components/connexion/register';
 import EditProfile from "./components/utilisateur/editProfile/editProfile";
-import Profile from './components/utilisateur/profile';
+import Profile from './components/utilisateur/profile/profile.js';
 import Login from './components/connexion/Login';
 import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
@@ -17,7 +17,6 @@ import Gannonces from "./components/admin/GAnnonce";
 import Goffres from "./components/admin/GOffre"; 
 import GUser from "./components/admin/GUser"; 
 import ModifierAnnonce from"./components/proprietaire/Annonces/ModifierAnnonce.js";
-import EditProfileprop from "./components/proprietaire/profilProp/EditProfileprop .js";
 
 function App() {
   const [clients, setClients] = useState([]);
@@ -32,9 +31,7 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          {/* 🌍 Pages publiques */}
-<Route path="/editprofile" element={<EditProfile />} />
-<Route path="/editprofileprop" element={<EditProfileprop/>} />
+ <Route path="/editprofile" element={<EditProfile />} />
           <Route path="/" element={<Accueil />} />
            <Route path="/annonce/:id" element={<DetailAnnonce/>} />
           <Route path="/filter" element={<ListeAnnonces/>} />
