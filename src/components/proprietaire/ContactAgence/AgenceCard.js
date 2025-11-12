@@ -1,321 +1,322 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { 
+  SearchOutlined, 
+  MailOutlined, 
+  PhoneOutlined, 
+  UserOutlined,
+  StarOutlined,
+  EnvironmentOutlined,
+  CalendarOutlined,
+  SendOutlined
+} from '@ant-design/icons';
 import './AgenceCard.css';
 
-const AgenceCard = ({ agence }) => {
-  // Vérification et valeurs par défaut pour l'agence
-  const agenceData = agence || {
-    userId: 0,
-    nom: "Agence",
-    prénom: "Non",
-    email: "email@exemple.com",
-    telephone: "00000000",
-    dateInscri: new Date().toISOString(),
-    role: "agence",
-    profileImage: null
-  };
-
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [messageStatus, setMessageStatus] = useState('');
-  const [contactInfo, setContactInfo] = useState({
+const AgenceCard = () => {
+  const [agences, setAgences] = useState([]);
+  const [filteredAgences, setFilteredAgences] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAgence, setSelectedAgence] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactForm, setContactForm] = useState({
     nom: '',
     email: '',
     telephone: '',
     message: ''
   });
+  const [sending, setSending] = useState(false);
 
-  // Fonction pour contacter par email direct
-  const handleEmailContact = () => {
-    const subject = "Demande d'information - Site Immobilier";
-    const body = `Bonjour ${agenceData.prénom},\n\nJe souhaiterais obtenir plus d'informations sur vos services immobiliers.\n\nCordialement`;
-    window.location.href = `mailto:${agenceData.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
-
-  // Fonction pour envoyer le message via le formulaire
-  const handleSubmitMessage = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessageStatus('');
-
+  // Charger les agences
+  const chargerAgences = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/agences/${agenceData.userId}/contact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nom: contactInfo.nom,
-          email: contactInfo.email,
-          telephone: contactInfo.telephone,
-          message: contactInfo.message
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessageStatus('success');
-        setContactInfo({ nom: '', email: '', telephone: '', message: '' });
-        setTimeout(() => {
-          setShowContactForm(false);
-          setMessageStatus('');
-        }, 2000);
-      } else {
-        setMessageStatus('error');
-      }
-    } catch (error) {
-      console.error('Erreur envoi message:', error);
-      setMessageStatus('error');
+      setLoading(true);
+      const response = await axios.get('http://localhost:5000/api/agences');
+      setAgences(response.data.data);
+      setFilteredAgences(response.data.data);
+    } catch (err) {
+      console.error('Erreur chargement agences:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Formater la date
-  const formatDate = (dateString) => {
+  useEffect(() => {
+    chargerAgences();
+  }, []);
+
+  // Filtrer les agences
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredAgences(agences);
+    } else {
+      const filtered = agences.filter(agence =>
+        agence.prénom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agence.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agence.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredAgences(filtered);
+    }
+  }, [searchTerm, agences]);
+
+  // Recherche d'agences
+  const rechercherAgences = async (search) => {
     try {
-      const options = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        timeZone: 'UTC'
-      };
-      return new Date(dateString).toLocaleDateString('fr-FR', options);
-    } catch (error) {
-      return "Date inconnue";
+      const response = await axios.get(`http://localhost:5000/api/agences/search?search=${search}`);
+      setFilteredAgences(response.data.data);
+    } catch (err) {
+      console.error('Erreur recherche agences:', err);
     }
   };
 
-  // Générer les initiales pour l'avatar
-  const getInitials = () => {
-    if (!agenceData.prénom || !agenceData.nom) return "AG";
-    return `${agenceData.prénom.charAt(0)}${agenceData.nom.charAt(0)}`.toUpperCase();
+  // Ouvrir modal de contact
+  const ouvrirContactModal = (agence) => {
+    setSelectedAgence(agence);
+    setContactForm({
+      nom: '',
+      email: '',
+      telephone: '',
+      message: ''
+    });
+    setShowContactModal(true);
   };
 
-  // Vérifier si l'image de profil existe
-  const hasProfileImage = agenceData.profileImage && agenceData.profileImage !== 'null' && agenceData.profileImage !== '';
+  // Fermer modal de contact
+  const fermerContactModal = () => {
+    setShowContactModal(false);
+    setSelectedAgence(null);
+    setSending(false);
+  };
 
-  // Si l'agence est undefined, afficher un message d'erreur
-  if (!agence) {
+  // Envoyer message
+  const envoyerMessage = async (e) => {
+    e.preventDefault();
+    
+    if (!contactForm.nom || !contactForm.email || !contactForm.message) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+
+    try {
+      setSending(true);
+      await axios.post(`http://localhost:5000/api/agences/${selectedAgence.userId}/contact`, contactForm);
+      
+      alert('Votre message a été envoyé avec succès !');
+      fermerContactModal();
+    } catch (err) {
+      console.error('Erreur envoi message:', err);
+      alert('Erreur lors de l\'envoi du message');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // Formater la date d'inscription
+  const formaterDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if (loading) {
     return (
-      <div className="agence-card error">
-        <div className="error-message">
-          <h3>❌ Agence non disponible</h3>
-          <p>Les informations de l'agence n'ont pas pu être chargées.</p>
-        </div>
+      <div className="agences-loading">
+        <div className="loading-spinner"></div>
+        <p>Chargement des agences...</p>
       </div>
     );
   }
 
   return (
-    <div className="agence-card">
-      {/* En-tête de la carte */}
-      <div className="agence-header">
-        <div className="agence-avatar">
-          {hasProfileImage ? (
-            <img 
-              src={`http://localhost:5000${agenceData.profileImage}`}
-              alt={`${agenceData.prénom} ${agenceData.nom}`}
-              className="profile-image"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                const fallback = e.target.nextSibling;
-                if (fallback) fallback.style.display = 'flex';
-              }}
-            />
-          ) : null}
-          <div className={`avatar-fallback ${hasProfileImage ? 'hidden' : ''}`}>
-            {getInitials()}
-          </div>
-          <div className="online-indicator"></div>
+    <div className="agences-container">
+      {/* En-tête */}
+      <div className="agences-header">
+        <div className="header-content">
+          <h1>📞 Agences Immobilières</h1>
+          <p>Contactez les meilleures agences pour vos projets immobiliers</p>
         </div>
-
-        <div className="agence-info">
-          <h2 className="agence-name">
-            {agenceData.prénom} {agenceData.nom}
-            <span className="verified-badge">✓</span>
-          </h2>
-          <p className="agence-role">Agence Immobilière</p>
-          <div className="agence-meta">
-            <span className="member-since">
-              📅 Membre depuis {formatDate(agenceData.dateInscri)}
-            </span>
-            <span className="rating">
-              ⭐ 4.8/5
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Informations de contact */}
-      <div className="contact-section">
-        <div className="contact-item">
-          <div className="contact-icon">📧</div>
-          <div className="contact-details">
-            <span className="contact-label">Email professionnel</span>
-            <a href={`mailto:${agenceData.email}`} className="contact-value">
-              {agenceData.email}
-            </a>
-          </div>
-        </div>
-
-        <div className="contact-item">
-          <div className="contact-icon">📞</div>
-          <div className="contact-details">
-            <span className="contact-label">Téléphone</span>
-            <a href={`tel:${agenceData.telephone}`} className="contact-value">
-              {agenceData.telephone}
-            </a>
-          </div>
-        </div>
-
-        <div className="contact-item">
-          <div className="contact-icon">🕒</div>
-          <div className="contact-details">
-            <span className="contact-label">Disponibilité</span>
-            <span className="contact-value">Lun - Ven: 9h - 18h</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="action-buttons">
-        <button 
-          className="btn btn-primary"
-          onClick={handleEmailContact}
-          disabled={loading}
-        >
-          <span className="btn-icon">📧</span>
-          Contacter par Email
-        </button>
         
-        <button 
-          className="btn btn-secondary"
-          onClick={() => setShowContactForm(!showContactForm)}
-          disabled={loading}
-        >
-          <span className="btn-icon">💬</span>
-          {showContactForm ? 'Annuler' : 'Envoyer Message'}
-        </button>
-
-        <button className="btn btn-outline">
-          <span className="btn-icon">⭐</span>
-          Voir Profil
-        </button>
+        {/* Barre de recherche */}
+        <div className="search-section">
+          <div className="search-container">
+            <SearchOutlined className="search-icon" />
+            <input
+              type="text"
+              placeholder="Rechercher une agence par nom, prénom ou email..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                rechercherAgences(e.target.value);
+              }}
+              className="search-input"
+            />
+          </div>
+          <div className="agences-count">
+            {filteredAgences.length} agence(s) trouvée(s)
+          </div>
+        </div>
       </div>
 
-      {/* Formulaire de contact */}
-      {showContactForm && (
-        <div className="contact-form-container">
-          <div className="form-header">
-            <h3>📬 Envoyer un message à {agenceData.prénom}</h3>
-            <p>Votre message sera envoyé directement à l'agence</p>
+      {/* Liste des agences */}
+      <div className="agences-grid">
+        {filteredAgences.length === 0 ? (
+          <div className="no-agences">
+            <div className="empty-state">
+              <UserOutlined className="empty-icon" />
+              <h3>Aucune agence trouvée</h3>
+              <p>Aucune agence ne correspond à votre recherche</p>
+            </div>
           </div>
-
-          {messageStatus === 'success' && (
-            <div className="alert alert-success">
-              ✅ Votre message a été envoyé avec succès !
-            </div>
-          )}
-
-          {messageStatus === 'error' && (
-            <div className="alert alert-error">
-              ❌ Une erreur est survenue. Veuillez réessayer.
-            </div>
-          )}
-
-          <form onSubmit={handleSubmitMessage} className="contact-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="nom">Votre nom *</label>
-                <input
-                  type="text"
-                  id="nom"
-                  value={contactInfo.nom}
-                  onChange={(e) => setContactInfo({...contactInfo, nom: e.target.value})}
-                  placeholder="Votre nom complet"
-                  required
-                  disabled={loading}
-                />
+        ) : (
+          filteredAgences.map(agence => (
+            <div key={agence.userId} className="agence-card">
+              {/* En-tête de la carte */}
+              <div className="agence-header">
+                <div className="agence-avatar">
+                  {agence.profileImage ? (
+                    <img src={agence.profileImage} alt={`${agence.prénom} ${agence.nom}`} />
+                  ) : (
+                    <div className="avatar-placeholder">
+                      <UserOutlined />
+                    </div>
+                  )}
+                </div>
+                <div className="agence-info">
+                  <h3 className="agence-name">{agence.prénom} {agence.nom}</h3>
+                  <p className="agence-role">Agence Immobilière</p>
+                
+                </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="email">Votre email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={contactInfo.email}
-                  onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})}
-                  placeholder="votre@email.com"
-                  required
-                  disabled={loading}
-                />
+              {/* Informations de contact */}
+              <div className="agence-contact-info">
+                <div className="contact-item">
+                  <MailOutlined className="contact-icon" />
+                  <span className="contact-text">{agence.email}</span>
+                </div>
+                <div className="contact-item">
+                  <PhoneOutlined className="contact-icon" />
+                  <span className="contact-text">{agence.telephone || 'Non renseigné'}</span>
+                </div>
+                <div className="contact-item">
+                  <CalendarOutlined className="contact-icon" />
+                  <span className="contact-text">
+                    Membre depuis {formaterDate(agence.dateInscri)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="agence-actions">
+                <button 
+                  className="btn-contact"
+                  onClick={() => ouvrirContactModal(agence)}
+                >
+                  <MailOutlined />
+                  Contacter
+                </button>
               </div>
             </div>
+          ))
+        )}
+      </div>
 
-            <div className="form-group">
-              <label htmlFor="telephone">Téléphone</label>
-              <input
-                type="tel"
-                id="telephone"
-                value={contactInfo.telephone}
-                onChange={(e) => setContactInfo({...contactInfo, telephone: e.target.value})}
-                placeholder="Votre numéro (optionnel)"
-                disabled={loading}
-              />
+      {/* Modal de contact */}
+      {showContactModal && selectedAgence && (
+        <div className="modal-overlay" onClick={fermerContactModal}>
+          <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title">
+                <h2>Contacter {selectedAgence.prénom} {selectedAgence.nom}</h2>
+                <p>Envoyez un message à cette agence immobilière</p>
+              </div>
+              <button className="close-btn" onClick={fermerContactModal}>
+                ×
+              </button>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="message">Votre message *</label>
-              <textarea
-                id="message"
-                value={contactInfo.message}
-                onChange={(e) => setContactInfo({...contactInfo, message: e.target.value})}
-                placeholder={`Bonjour ${agenceData.prénom}, je suis intéressé(e) par vos services immobiliers...`}
-                rows="5"
-                required
-                disabled={loading}
-              ></textarea>
-            </div>
+            <form onSubmit={envoyerMessage} className="contact-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label htmlFor="nom">Nom complet *</label>
+                  <input
+                    type="text"
+                    id="nom"
+                    value={contactForm.nom}
+                    onChange={(e) => setContactForm({...contactForm, nom: e.target.value})}
+                    placeholder="Votre nom complet"
+                    required
+                  />
+                </div>
 
-            <button 
-              type="submit" 
-              className={`btn btn-submit ${loading ? 'loading' : ''}`}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner"></span>
-                  Envoi en cours...
-                </>
-              ) : (
-                <>
-                  <span className="btn-icon">📤</span>
-                  Envoyer le message
-                </>
-              )}
-            </button>
-          </form>
+                <div className="form-group">
+                  <label htmlFor="email">Email *</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                    placeholder="votre@email.com"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="telephone">Téléphone</label>
+                  <input
+                    type="tel"
+                    id="telephone"
+                    value={contactForm.telephone}
+                    onChange={(e) => setContactForm({...contactForm, telephone: e.target.value})}
+                    placeholder="Votre numéro de téléphone"
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="message">Message *</label>
+                  <textarea
+                    id="message"
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                    placeholder="Décrivez votre projet immobilier, vos besoins, votre budget..."
+                    rows="6"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-footer">
+                <button 
+                  type="button" 
+                  className="btn-cancel"
+                  onClick={fermerContactModal}
+                >
+                  Annuler
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn-send"
+                  disabled={sending}
+                >
+                  {sending ? (
+                    <>
+                      <div className="sending-spinner"></div>
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <SendOutlined />
+                      Envoyer le message
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
-
-      {/* Footer avec statistiques */}
-      <div className="agence-footer">
-        <div className="stats">
-          <div className="stat-item">
-            <span className="stat-number">50+</span>
-            <span className="stat-label">Biens</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">98%</span>
-            <span className="stat-label">Satisfaction</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">5ans</span>
-            <span className="stat-label">Expérience</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

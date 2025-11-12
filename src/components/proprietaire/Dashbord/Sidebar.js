@@ -93,7 +93,7 @@ const Sidebar = ({ onMenuClick }) => {
 
         <li
           className={`menu-item ${activeMenu === "profil" ? 'active' : ''}`}
-          onClick={() => handleMenuClick("profil")}
+          onClick={() => handleMenuClick("profilee")}
         >
           <span className="menu-icon">
             <UserOutlined />

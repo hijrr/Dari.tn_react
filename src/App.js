@@ -17,6 +17,7 @@ import Gannonces from "./components/admin/GAnnonce";
 import Goffres from "./components/admin/GOffre"; 
 import GUser from "./components/admin/GUser"; 
 import ModifierAnnonce from"./components/proprietaire/Annonces/ModifierAnnonce.js";
+import EditProfileprop from "./components/proprietaire/profilProp/EditProfileprop .js";
 
 function App() {
   const [clients, setClients] = useState([]);
@@ -33,6 +34,7 @@ function App() {
         <Routes>
           {/* 🌍 Pages publiques */}
 <Route path="/editprofile" element={<EditProfile />} />
+<Route path="/editprofileprop" element={<EditProfileprop/>} />
           <Route path="/" element={<Accueil />} />
            <Route path="/annonce/:id" element={<DetailAnnonce/>} />
           <Route path="/filter" element={<ListeAnnonces/>} />
