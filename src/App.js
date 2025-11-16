@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-rou
 // 🔹 Composants
 import Register from './components/connexion/register';
 import EditProfile from "./components/utilisateur/editProfile/editProfile";
-import Profile from './components/utilisateur/profile';
+import Profile from './components/utilisateur/profile/profile.js';
 import Login from './components/connexion/Login';
 import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
@@ -18,7 +18,7 @@ import Goffres from "./components/admin/GOffre";
 import GUser from "./components/admin/GUser";
 import ModifierAnnonce from "./components/proprietaire/Annonces/ModifierAnnonce.js";
 import OffresDashboard from "./components/admin/adminDashbord.js";
-import  FormOffre from "./components/admin/FormOffre.js";
+import FormOffre from "./components/admin/FormOffre.js";
 import EditProfileAdmin from "./components/admin/editProfilAdmin.js";
 
 
@@ -72,6 +72,30 @@ function App() {
 
           <Route
             path="/dashboard-proprietaire/ajouter-annonce"
+            element={
+              <ProtectedRoute roleRequired="proprietaire">
+                <AjouterAnnonce />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard-proprietaire/offres"
+            element={
+              <ProtectedRoute roleRequired="proprietaire">
+                <AjouterAnnonce />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard-proprietaire/ajouter-annonce"
+            element={
+              <ProtectedRoute roleRequired="proprietaire">
+                <AjouterAnnonce />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard-proprietaire/contactAgence"
             element={
               <ProtectedRoute roleRequired="proprietaire">
                 <AjouterAnnonce />

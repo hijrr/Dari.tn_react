@@ -1,73 +1,95 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./profile.css";
 import Header from "../../Header";
+import Footer from "../../footer";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const Profile = () => {
-  const [user, setUser] = useState(null); // sera chargé depuis la base
+  const [user, setUser] = useState(null); 
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
-  const [favoris, setFavoris] = useState([]); // favoris dynamiques
+  const [favoris, setFavoris] = useState([]); 
 
+  // --- Charger l'utilisateur ---
   useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (!storedUser || !storedUser.userId) {
-        alert("Utilisateur non connecté !");
-        return;
+    const fetchUser = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (!storedUser || !storedUser.userId) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Non connecté',
+            text: 'Veuillez vous connecter pour accéder à votre profil !',
+          });
+          return;
+        }
+
+        const resUser = await axios.get(
+          `http://localhost:5000/api/utilisateur/connecte/${storedUser.userId}`
+        );
+        setUser(resUser.data);
+      } catch (err) {
+        console.error("Erreur chargement profil :", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: "Impossible de charger le profil !",
+        });
       }
+    };
+    fetchUser();
+  }, []);
 
-      const resUser = await axios.get(
-        `http://localhost:5000/api/utilisateur/connecte/${storedUser.userId}`
-      );
-      setUser(resUser.data);
-    } catch (err) {
-      console.error("Erreur chargement profil :", err);
-      alert("Impossible de charger le profil !");
-    }
-  };
+  // --- Charger les favoris ---
+  useEffect(() => {
+    const fetchFavoris = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (!storedUser || !storedUser.userId) return;
 
-  fetchUser();
-}, []);
+        const resFavoris = await axios.get(
+          `http://localhost:5000/api/favoris/${storedUser.userId}`
+        );
+        setFavoris(resFavoris.data);
+      } catch (err) {
+        console.error("Erreur chargement favoris :", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: "Impossible de charger les favoris !",
+        });
+      }
+    };
+    fetchFavoris();
+  }, []);
 
-useEffect(() => {
-  const fetchFavoris = async () => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (!storedUser || !storedUser.userId) return;
-
-      const resFavoris = await axios.get(
-        `http://localhost:5000/api/favoris/${storedUser.userId}`
-      );
-      console.log("Favoris récupérés :", resFavoris.data);
-      setFavoris(resFavoris.data);
-    } catch (err) {
-      console.error("Erreur chargement favoris :", err);
-      alert("Impossible de charger les favoris !");
-    }
-  };
-
-  fetchFavoris();
-}, []);
-
-  // --- Ouvrir le sélecteur de fichiers ---
+  // --- Ouvrir sélecteur fichiers ---
   const handleImageClick = () => {
     fileInputRef.current.click();
   };
 
-  // --- Gérer le changement d'image ---
+  // --- Changer image ---
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Veuillez sélectionner une image valide !");
+      Swal.fire({
+        icon: 'error',
+        title: 'Fichier invalide',
+        text: "Veuillez sélectionner une image valide !",
+      });
       return;
     }
+
     if (file.size > 5 * 1024 * 1024) {
-      alert("L'image ne doit pas dépasser 5 Mo !");
+      Swal.fire({
+        icon: 'error',
+        title: 'Taille trop grande',
+        text: "L'image ne doit pas dépasser 5 Mo !",
+      });
       return;
     }
 
@@ -89,35 +111,58 @@ useEffect(() => {
       const savedImageUrl = `http://localhost:5000${res.data.imageUrl}`;
       setUser((prev) => ({ ...prev, profileImage: savedImageUrl }));
 
-      // mettre à jour le localStorage
       const stored = JSON.parse(localStorage.getItem("user") || "{}");
       stored.profileImage = savedImageUrl;
       localStorage.setItem("user", JSON.stringify(stored));
 
-      alert("Photo de profil mise à jour !");
+      Swal.fire({
+        icon: 'success',
+        title: 'Image mise à jour',
+        text: "Votre photo de profil a été mise à jour avec succès !",
+      });
     } catch (err) {
       console.error("Erreur upload :", err);
-      alert("Erreur lors du téléchargement de l'image !");
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: "Erreur lors du téléchargement de l'image !",
+      });
     } finally {
       URL.revokeObjectURL(localUrl);
     }
   };
 
-  // --- Supprimer un favori localement ---
- // Fonction pour retirer un favori du state
-// Fonction pour retirer un favori
-const handleRemoveFavori = async (idFav) => {
-  try {
-    // Appel à l'API pour supprimer le favori dans la base
-    await axios.delete(`http://localhost:5000/api/favoris/${idFav}`);
+  // --- Supprimer favori ---
+  const handleRemoveFavori = async (idFav) => {
+    try {
+      const result = await Swal.fire({
+        icon: 'warning',
+        title: 'Supprimer le favori',
+        text: "Voulez-vous vraiment retirer ce favori ?",
+        showCancelButton: true,
+        confirmButtonText: 'Oui',
+        cancelButtonText: 'Non'
+      });
 
-    // Mettre à jour le state pour retirer le favori de l'affichage
-    setFavoris((prev) => prev.filter((favori) => favori.idFav !== idFav));
-  } catch (err) {
-    console.error("Erreur suppression favori :", err);
-    alert("Impossible de retirer le favori !");
-  }
-};
+      if (!result.isConfirmed) return;
+
+      await axios.delete(`http://localhost:5000/api/favoris/${idFav}`);
+      setFavoris((prev) => prev.filter((favori) => favori.idFav !== idFav));
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Favori retiré',
+        text: 'Le favori a été supprimé avec succès !'
+      });
+    } catch (err) {
+      console.error("Erreur suppression favori :", err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: "Impossible de retirer le favori !",
+      });
+    }
+  };
 
   if (!user) return <p>Chargement du profil...</p>;
 
@@ -133,7 +178,7 @@ const handleRemoveFavori = async (idFav) => {
 
       <div className="profile-container">
         <div className="profile-content">
-          {/* --- Section Profil --- */}
+          {/* Section Profil */}
           <div className="profile-section">
             <h1 className="profile-title">MON PROFIL</h1>
 
@@ -143,9 +188,7 @@ const handleRemoveFavori = async (idFav) => {
                   src={displayUrl}
                   alt="Profile"
                   className="profile-image"
-                  onError={(e) => {
-                    e.target.src = "/images/default-avatar.png";
-                  }}
+                  onError={(e) => { e.target.src = "/images/default-avatar.png"; }}
                 />
                 <div className="image-overlay">
                   <span className="camera-icon">📷</span>
@@ -185,7 +228,7 @@ const handleRemoveFavori = async (idFav) => {
             </div>
           </div>
 
-          {/* --- Section Favoris --- */}
+          {/* Section Favoris */}
           <div className="favoris-section">
             <h2 className="section-title">Mes Favoris ({favoris.length})</h2>
             <div className="favoris-grid">
@@ -235,18 +278,19 @@ const handleRemoveFavori = async (idFav) => {
             </div>
           </div>
 
-          {/* --- Section Actions --- */}
+          {/* Section Actions */}
           <div className="actions-section">
             <div className="action-buttons">
               <Link to="/editprofile">
                 <button className="action-btn primary-btn">✏️ Modifier Profil</button>
               </Link>
-              <button className="action-btn secondary-btn">🔔 Notifications</button>
             </div>
           </div>
         </div>
       </div>
+       <Footer/>
     </div>
+   
   );
 };
 

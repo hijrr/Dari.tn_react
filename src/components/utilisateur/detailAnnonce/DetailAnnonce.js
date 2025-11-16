@@ -1,140 +1,146 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 import "./detailAnnonce.css";
 import Header from "../../Header";
+import ShowMap from "./ShowMap";
+import Footer from "../../footer"
 
 const DetailAnnonce = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [annonce, setAnnonce] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
-
+  const [showMap, setShowMap] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteId, setFavoriteId] = useState(null);
 
-  const [showContactModal, setShowContactModal] = useState(false);
-  const [showMapModal, setShowMapModal] = useState(false);
 
-    // --- Charger l'utilisateur connecté ---
+  // --- Charger l'utilisateur connecté ---
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (!storedUser || !storedUser.userId) return;
     setUser(storedUser);
   }, []);
-  
 
-useEffect(() => {
-  if (!user) return;
+  // --- Charger annonce et vérifier favoris ---
+  useEffect(() => {
+    if (!user) return;
 
-  const fetchAnnonce = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const res = await axios.get(`http://localhost:5000/api/Annonces/${id}`);
-      setAnnonce(res.data);
+    const fetchAnnonce = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await axios.get(`http://localhost:5000/api/Annonces/${id}`);
+        setAnnonce(res.data);
 
-      // Vérifier favoris
-      const favRes = await axios.get(`http://localhost:5000/api/favoris/check`, {
-        params: { idAnnonce: res.data.idAnnonce, userId: user.userId }
-      });
-      if (favRes.data.idFav) {
-        setIsFavorite(true);
-        setFavoriteId(favRes.data.idFav);
+        // Vérifier si déjà en favoris
+        const favRes = await axios.get(`http://localhost:5000/api/favoris/check`, {
+          params: { idAnnonce: res.data.idAnnonce, userId: user.userId }
+        });
+        if (favRes.data.idFav) {
+          setIsFavorite(true);
+          setFavoriteId(favRes.data.idFav);
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement:", err);
+        setError("Impossible de charger l'annonce. Veuillez réessayer.");
+      } finally {
+        setLoading(false);
       }
+    };
+
+    fetchAnnonce();
+  }, [id, user]);
+
+  // --- Ajouter aux favoris ---
+  const addToFavorites = async () => {
+    if (!user || !user.userId || !annonce) return;
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/favoris", {
+        idAnnonce: annonce.idAnnonce,
+        userId: user.userId
+      });
+      setFavoriteId(res.data.idFav);
+      setIsFavorite(true);
+      Swal.fire("✅ Ajouté !", "Annonce ajoutée aux favoris.", "success");
     } catch (err) {
-      console.error("Erreur lors du chargement:", err);
-      setError("Impossible de charger l'annonce. Veuillez réessayer.");
-    } finally {
-      setLoading(false);
+      console.error(err);
+      Swal.fire("❌ Erreur", "Impossible d'ajouter aux favoris.", "error");
     }
   };
 
-  fetchAnnonce();
-}, [id, user]);
-
-
- // --- Ajouter aux favoris ---
-  const addToFavorites = () => {
-    if (!user || !user.userId || !annonce) return;
-console.log("Favori à ajouter :", annonce.idAnnonce, user.userId);
-
-    axios.post("http://localhost:5000/api/favoris", {
-      idAnnonce: annonce.idAnnonce,
-      userId: user.userId,
-      
-    })
-    
-    .then(res => {
-      setFavoriteId(res.data.idFav);
-      setIsFavorite(true);
-      alert("✅ Annonce ajoutée aux favoris !");
-    })
-    .catch(err => {
-      console.error(err);
-      alert("❌ Erreur lors de l'ajout aux favoris");
-    });
-  };
-
   // --- Retirer des favoris ---
-  const removeFromFavorites = () => {
+  const removeFromFavorites = async () => {
     if (!favoriteId) return;
 
-    axios.delete(`http://localhost:5000/api/favoris/${favoriteId}`)
-      .then(() => {
-        setFavoriteId(null);
-        setIsFavorite(false);
-        alert("🗑️ Annonce retirée des favoris");
-      })
-      .catch(err => {
-        console.error(err);
-        alert("❌ Erreur lors de la suppression des favoris");
+    try {
+      await axios.delete(`http://localhost:5000/api/favoris/${favoriteId}`);
+      setFavoriteId(null);
+      setIsFavorite(false);
+      Swal.fire("🗑️ Retiré", "Annonce retirée des favoris.", "success");
+    } catch (err) {
+      console.error(err);
+      Swal.fire("❌ Erreur", "Impossible de retirer des favoris.", "error");
+    }
+  };
+
+  const handleSendRequest = async () => {
+  if (!user || !user.userId) {
+    Swal.fire("Erreur", "Vous devez être connecté pour envoyer une demande.", "error");
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: "Confirmer l'envoi",
+    text: "Voulez-vous envoyer une demande de contact pour cette annonce ?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Envoyer",
+    cancelButtonText: "Annuler",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      // Ajouter demande dans demandeloc
+      const demandeRes = await axios.post("http://localhost:5000/api/demandeloc", {
+        annonceId: annonce.idAnnonce,
+        userId: user.userId,
+        dateDem: new Date(),
+        statut: "en attente"
       });
-  };
 
-
-  const sendRequest = () => {
-    setShowContactModal(true);
-  };
-
-  const confirmSendRequest = () => {
-    axios.post("http://localhost:5000/envoyerDemande", { idAnnonce: annonce.idAnnonce })
-      .then(() => {
-        alert("✅ Demande envoyée avec succès !");
-        setShowContactModal(false);
-      })
-      .catch(err => {
-        console.error(err);
-        alert("❌ Erreur lors de l'envoi de la demande");
+      // Ajouter notification pour le propriétaire
+      await axios.post("http://localhost:5000/api/notifications", {
+        titre: "Nouvelle demande de location",
+        message: `Une nouvelle demande a été envoyée pour votre annonce "${annonce.titre}".`,
+        typeNotification: "demande",
+        userId: annonce.userId,
+        messageId: demandeRes.data.idDem
       });
-  };
+
+      Swal.fire("✅ Demande envoyée", "Votre demande a été transmise au propriétaire.", "success");
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Erreur", "Impossible d'envoyer la demande.", "error");
+    }
+  }
+};
 
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
+    const options = { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" };
+    return new Date(dateString).toLocaleDateString("fr-FR", options);
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('fr-TN', {
-      style: 'currency',
-      currency: 'TND'
-    }).format(price);
+    return new Intl.NumberFormat("fr-TN", { style: "currency", currency: "TND" }).format(price);
   };
 
-  const getMapUrl = (location) => {
-    return `https://maps.google.com/maps?q=${encodeURIComponent(location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
-  };
-
-  if (loading) {
+  if (loading)
     return (
       <div>
         <Header />
@@ -144,9 +150,8 @@ console.log("Favori à ajouter :", annonce.idAnnonce, user.userId);
         </div>
       </div>
     );
-  }
 
-  if (error) {
+  if (error)
     return (
       <div>
         <Header />
@@ -159,9 +164,8 @@ console.log("Favori à ajouter :", annonce.idAnnonce, user.userId);
         </div>
       </div>
     );
-  }
 
-  if (!annonce) {
+  if (!annonce)
     return (
       <div>
         <Header />
@@ -173,15 +177,9 @@ console.log("Favori à ajouter :", annonce.idAnnonce, user.userId);
         </div>
       </div>
     );
-  }
 
-  const imageUrl = annonce.image?.startsWith("http") 
-    ? annonce.image 
-    : `http://localhost:5000${annonce.image || "/uploads/default.jpg"}`;
-
-  const profileImageUrl = annonce.profileImage?.startsWith("http")
-    ? annonce.profileImage
-    : `http://localhost:5000${annonce.profileImage || "/images/default-avatar.png"}`;
+  const imageUrl = annonce.image?.startsWith("http") ? annonce.image : `http://localhost:5000${annonce.image || "/uploads/default.jpg"}`;
+  const profileImageUrl = annonce.profileImage?.startsWith("http") ? annonce.profileImage : `http://localhost:5000${annonce.profileImage || "/images/default-avatar.png"}`;
 
   return (
     <div>
@@ -189,30 +187,18 @@ console.log("Favori à ajouter :", annonce.idAnnonce, user.userId);
       <div className="detail-page">
         <div className="detail-header">
           <button className="back-btn" onClick={() => navigate(-1)}>
-            <span className="back-arrow">←</span>
-            Retour
+            <span className="back-arrow">←</span> Retour
           </button>
           <div className="header-actions">
-            <button 
-              className={`favorite-btn ${isFavorite ? 'active' : ''}`}
-              onClick={isFavorite ? removeFromFavorites : addToFavorites}
-            >
-              {isFavorite ? '❤️' : '🤍'}
-              {isFavorite ? ' Retirer des favoris' : ' Ajouter aux favoris'}
+            <button className={`favorite-btn ${isFavorite ? "active" : ""}`} onClick={isFavorite ? removeFromFavorites : addToFavorites}>
+              {isFavorite ? "❤️ Retirer des favoris" : "🤍 Ajouter aux favoris"}
             </button>
           </div>
         </div>
 
         <div className="detail-container">
           <div className="image-section">
-            <img 
-              src={imageUrl} 
-              alt={annonce.titre} 
-              className="detail-img"
-              onError={(e) => {
-                e.target.src = "/images/default-property.jpg";
-              }}
-            />
+            <img src={imageUrl} alt={annonce.titre} className="detail-img" onError={(e) => (e.target.src = "/images/default-property.jpg")} />
             <div className="image-badge">{annonce.type}</div>
           </div>
 
@@ -248,13 +234,7 @@ console.log("Favori à ajouter :", annonce.idAnnonce, user.userId);
               <h3>Propriétaire ou Agence</h3>
               <div className="owner-info">
                 <div className="owner-avatar">
-                  <img
-                    src={profileImageUrl}
-                    alt={`${annonce.nom} ${annonce.prénom}`}
-                    onError={(e) => {
-                      e.target.src = "/images/default-avatar.png";
-                    }}
-                  />
+                  <img src={profileImageUrl} alt={`${annonce.nom} ${annonce.prénom}`} onError={(e) => (e.target.src = "/images/default-avatar.png")} />
                 </div>
                 <div className="owner-details">
                   <h4>{annonce.nom} {annonce.prénom}</h4>
@@ -266,91 +246,21 @@ console.log("Favori à ajouter :", annonce.idAnnonce, user.userId);
             </div>
 
             <div className="action-buttons">
-              <button className="btn btn-primary" onClick={sendRequest}>
-                📩 Envoyer une demande
-              </button>
-              <button 
-                className="btn btn-secondary" 
-                onClick={() => setShowMapModal(true)}
+              <button className="btn btn-primary" onClick={handleSendRequest}>📩 Envoyer une demande</button>
+              <button
+                style={{ padding: "10px 20px", borderRadius: "8px", backgroundColor: "#007bff", color: "white", border: "none", cursor: "pointer", marginTop: "10px" }}
+                onClick={() => setShowMap(!showMap)}
               >
-                🗺️ Voir sur la carte
+                {showMap ? "Fermer la carte" : "Voir sur carte"}
               </button>
-          
+              {showMap && <div style={{ marginTop: "20px" }}><ShowMap localisation={annonce.localisation} /></div>}
             </div>
           </div>
         </div>
 
-        {/* Modal de contact */}
-        {showContactModal && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-header">
-                <h3>Confirmer l'envoi</h3>
-                <button 
-                  className="close-btn"
-                  onClick={() => setShowContactModal(false)}
-                >
-                  ×
-                </button>
-              </div>
-              <div className="modal-body">
-                <p>Voulez-vous envoyer une demande de contact pour cette annonce ?</p>
-                <div className="annonce-preview">
-                  <strong>{annonce.titre}</strong>
-                  <span>{formatPrice(annonce.prix)}</span>
-                </div>
-              </div>
-              <div className="modal-actions">
-                <button 
-                  className="btn btn-cancel"
-                  onClick={() => setShowContactModal(false)}
-                >
-                  Annuler
-                </button>
-                <button 
-                  className="btn btn-confirm"
-                  onClick={confirmSendRequest}
-                >
-                  Confirmer l'envoi
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de la carte */}
-        {showMapModal && (
-          <div className="modal-overlay">
-            <div className="modal map-modal">
-              <div className="modal-header">
-                <h3>Localisation - {annonce.localisation}</h3>
-                <button 
-                  className="close-btn"
-                  onClick={() => setShowMapModal(false)}
-                >
-                  ×
-                </button>
-              </div>
-              <div className="modal-body">
-                <iframe
-                  title="Carte de localisation"
-                  width="100%"
-                  height="300"
-                  frameBorder="0"
-                  scrolling="no"
-                  marginHeight="0"
-                  marginWidth="0"
-                  src={getMapUrl(annonce.localisation)}
-                >
-                </iframe>
-                <div className="map-address">
-                  <strong>Adresse:</strong> {annonce.localisation}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        
       </div>
+       <Footer/>
     </div>
   );
 };

@@ -1,126 +1,141 @@
+/* Conteneur principal */
 .annonce-card {
-  background: white;
-  border-radius: 15px;
+  background: #fff;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+/* Effet hover général */
 .annonce-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
 }
 
-.card-image {
+/* Image de la carte */
+.annonce-card-image {
   position: relative;
-  height: 200px;
+  height: 220px;
   overflow: hidden;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
-.card-image img {
+.annonce-card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s ease;
 }
 
-.annonce-card:hover .card-image img {
+.annonce-card:hover .annonce-card-image img {
   transform: scale(1.1);
 }
 
-.card-badge {
+/* Badge type */
+.annonce-card-badge {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 12px;
+  left: 12px;
   background: #667eea;
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  color: #fff;
+  padding: 0.4rem 0.9rem;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-.card-content {
-  padding: 1.5rem;
-}
-
-.card-header {
+/* Contenu de la carte */
+.annonce-card-content {
+  padding: 1.6rem 1.5rem;
+  flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
 }
 
-.card-title {
-  font-size: 1.3rem;
+/* Header */
+.annonce-card-header {
+  margin-bottom: 0.8rem;
+}
+
+.annonce-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #2d3748;
   margin: 0;
-  font-weight: 600;
 }
 
-.card-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.stars {
-  font-size: 0.9rem;
-}
-
-.note {
-  font-weight: 600;
-  color: #667eea;
-}
-
-.card-description {
-  color: #718096;
+/* Description */
+.annonce-card-description {
+  font-size: 0.95rem;
+  color: #4a5568;
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
-.card-footer {
+/* Footer */
+.annonce-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-.card-price {
+.annonce-card-price {
   display: flex;
   align-items: baseline;
   gap: 0.3rem;
 }
 
-.price {
-  font-size: 1.5rem;
-  font-weight: bold;
+.annonce-price {
+  font-size: 1.4rem;
+  font-weight: 700;
   color: #2d3748;
 }
 
-.devise {
+.annonce-devise {
   font-weight: 600;
   color: #667eea;
 }
 
-.duree {
-  color: #718096;
+.annonce-duree {
   font-size: 0.9rem;
+  color: #718096;
 }
 
-.reserve-btn {
+/* Bouton réserver */
+.annonce-reserve-btn {
   background: #48bb78;
-  color: white;
+  color: #fff;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 500;
+  padding: 0.55rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
 }
 
-.reserve-btn:hover {
+.annonce-reserve-btn:hover {
   background: #38a169;
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(56, 161, 105, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .annonce-card {
+    flex-direction: column;
+  }
+  .annonce-card-image {
+    height: 180px;
+  }
 }

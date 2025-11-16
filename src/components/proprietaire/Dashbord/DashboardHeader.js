@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { SearchOutlined, BellOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
+import { SearchOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import NotificationBell from '../notification/NotificationBell'; // Import du composant notification
 import './Dashboard.css';
 
 const DashboardHeader = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-const prenom = user?.prénom;
-const nom = user?.nom;
+  const prenom = user?.prénom;
+  const nom = user?.nom;
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -36,10 +37,8 @@ const nom = user?.nom;
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-        <div className="notification-bell">
-          <BellOutlined style={{ fontSize: "20px", color: "var(--color-primary-medium)" }} />
-          <div className="notification-dot" />
-        </div>
+        {/* Remplacement de l'ancienne cloche par le composant NotificationBell */}
+        <NotificationBell />
 
         <div style={{
           display: 'flex',
@@ -65,7 +64,7 @@ const nom = user?.nom;
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-primary-dark)' }}>
-             { nom + ' ' + prenom}
+              {nom + ' ' + prenom}
             </span>
             <span style={{ fontSize: '12px', color: 'var(--color-primary-light)' }}>
               Propriétaire
@@ -73,14 +72,13 @@ const nom = user?.nom;
           </div>
         </div>
 
-  <button
-  className="primary-button"
-  onClick={() => navigate("/dashboard-proprietaire/ajouter-annonce")}
->
-  <PlusOutlined style={{ fontSize: "16px" }} />
-  Nouvelle Annonce
-</button>
-
+        <button
+          className="primary-button"
+          onClick={() => navigate("/dashboard-proprietaire/ajouter-annonce")}
+        >
+          <PlusOutlined style={{ fontSize: "16px" }} />
+          Nouvelle Annonce
+        </button>
       </div>
     </div>
   );

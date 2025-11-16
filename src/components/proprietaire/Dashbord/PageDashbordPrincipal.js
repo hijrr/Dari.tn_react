@@ -7,6 +7,7 @@ import AllAnnonces from '../Annonces/Allannonces';
 import './Dashboard.css';
 import Offres from '../Ofrres/offre';
 import GestionDemandes from '../gestiondemandeclient/GestionDemandes';
+import AgenceCard from '../ContactAgence/AgenceCard';
 
 const PageDashbordPrincipal = () => {
   const [activeComponent, setActiveComponent] = useState("accueil");
@@ -25,8 +26,13 @@ const PageDashbordPrincipal = () => {
         return <AllAnnonces />;
       case "offres":
         return <Offres/>;
+           case "contact":
+        return <AgenceCard/>;
         case "clients":
         return <GestionDemandes/>;
+          
+     case "contact":
+  return <AgenceCard/>;
       default:
         return (
           <>

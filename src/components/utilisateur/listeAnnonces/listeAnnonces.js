@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../../Header";
+import Footer from "../../footer"
 import "./listeAnnonces.css";
 
 const ListeAnnonces = () => {
-  const [filters, setFilters] = useState({ prix: 5000, type: "", duree: "", ville: "" });
+  const [filters, setFilters] = useState({ prix: 5000, type: "", ville: "" });
   const [annonces, setAnnonces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const annoncesPerPage = 4;
+  const annoncesPerPage = 3;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,11 +37,12 @@ const ListeAnnonces = () => {
     const prix = a.prix ? parseFloat(a.prix) : 0;
     const prixOk = prix <= filters.prix;
     const typeOk = !filters.type || a.type?.toLowerCase() === filters.type.toLowerCase();
-    const dureeOk = !filters.duree || a.duree === filters.duree;
     const villeOk =
-      !filters.ville ||
-      (a.localisation || a.lieu || "").toLowerCase() === filters.ville.toLowerCase();
-    return prixOk && typeOk && dureeOk && villeOk;
+  !filters.ville ||
+  new RegExp(`\\b${filters.ville.toLowerCase()}\\b`).test(
+    (a.localisation || a.lieu || "").toLowerCase()
+  );
+return prixOk && typeOk && villeOk;
   });
 
   // Pagination
@@ -49,18 +51,43 @@ const ListeAnnonces = () => {
   const currentAnnonces = filteredAnnonces.slice(indexOfFirstAnnonce, indexOfLastAnnonce);
 
   const types = ["Appartement", "Maison", "Villa", "Studio"];
-  const durees = ["pour nuit", "pour 2 nuits", "pour 5 nuits", "pour semaine", "pour mois"];
-  const villesTunisie = [
-    "Sousse",
-    "Tunis",
-    "Carthage",
-    "Hammamet",
-    "Djerba",
-    "La Marsa",
-    "Sidi Bou Said",
-    "Nabeul",
-    "Monastir",
-  ];
+ const villesTunisie = [
+  // Nord
+  "Tunis",
+  "Ariana",
+  "La Marsa",
+  "Carthage",
+  "Le Bardo",
+  "Le Kram",
+  "La Goulette",
+  "Manouba",
+  "Bizerte",
+  "Beja",
+  "Jendouba",
+  "Tabarka",
+  
+  // Sahel
+  "Sousse",
+  "Monastir",
+  "Mahdia",
+  "Hammamet",
+  "Nabeul",
+  
+  // Centre
+  "Kairouan",
+  "Sidi Bouzid",
+  "Kasserine",
+  "Siliana", // Sud
+  "Sfax",
+  "Gabès",
+  "Médenine",
+  "Tataouine",
+  "Tozeur",
+  "Kebili",
+  "Gafsa",
+  "Djerba",
+];
+
 
   if (loading) return <div className="loading">Chargement des annonces...</div>;
 
@@ -101,23 +128,7 @@ const ListeAnnonces = () => {
             </div>
           </div>
 
-          {/* DUREE */}
-          <div className="filter-item">
-            <label>Durée :</label>
-            <div className="filter-buttons">
-              {durees.map((d) => (
-                <button
-                  key={d}
-                  className={filters.duree === d ? "active" : ""}
-                  onClick={() => handleFilterChange("duree", d)}
-                >
-                  {d}
-                </button>
-              ))}
-              <button onClick={() => handleFilterChange("duree", "")}>Toutes</button>
-            </div>
-          </div>
-
+          
           {/* VILLE */}
           <div className="filter-item">
             <label>Ville :</label>
@@ -145,36 +156,51 @@ const ListeAnnonces = () => {
         </h2>
 
         <div className="annonces-grid">
-          {currentAnnonces.map((a) => {
-            const imageUrl = a.image
-              ? a.image.startsWith("http")
-                ? a.image
-                : `http://localhost:5000${a.image}`
-              : "/uploads/default.jpg";
+         {currentAnnonces.map((a) => {
+    const imageUrl = a.image
+      ? a.image.startsWith("http")
+        ? a.image
+        : `http://localhost:5000${a.image}`
+      : "/uploads/default.jpg";
 
-            return (
-              <div key={a.idAnnonce || a.id} className="annonce-card" data-type={a.type}>
-                <img
-                  src={imageUrl}
-                  alt={a.titre}
-                  className="annonce-img"
-                  onError={(e) => {
-                    e.target.src = "/uploads/default.jpg";
-                  }}
-                />
-                <div className="annonce-info">
-                  <h3>{a.type} - {a.localisation}</h3>
-                  <p>{a.titre}</p>
-                  <p>
-                    <strong>{a.prix} dt</strong> {a.duree}
-                  </p>
-                  <div className="price-indicator">{a.prix} dt {a.duree}</div>
-                  <button className="details-btn"  onClick={() => navigate(`/annonce/${a.idAnnonce}`)}>
-                    Voir détails
-                  </button>
-                </div>
-              </div>
-            );
+    return (
+      <div
+        key={a.idAnnonce || a.id}
+        className="annonce-card"
+        data-type={a.type}
+      >
+        <div className="annonce-img-container">
+          <img
+            src={imageUrl}
+            alt={a.titre}
+            className="annonce-img"
+            onError={(e) => {
+              e.target.src = "/uploads/default.jpg";
+            }}
+          />
+          <span className="annonce-type">{a.type}</span>
+        </div>
+
+        <div className="annonce-info">
+          <h3 className="annonce-title">{a.titre}</h3>
+          <p className="annonce-location">
+            <i className="fa-solid fa-location-dot"></i> {a.localisation}
+          </p>
+
+          <div className="annonce-price">
+            <strong>{a.prix} DT</strong>
+            {a.duree && <span className="annonce-duration"> / {a.duree}</span>}
+          </div>
+
+          <button
+            className="details-btn"
+            onClick={() => navigate(`/annonce/${a.idAnnonce}`)}
+          >
+            Voir détails
+          </button>
+        </div>
+      </div>
+    );
           })}
 
           {currentAnnonces.length === 0 && (
@@ -197,6 +223,7 @@ const ListeAnnonces = () => {
           ))}
         </div>
       </div>
+       <Footer/>
     </div>
   );
 };

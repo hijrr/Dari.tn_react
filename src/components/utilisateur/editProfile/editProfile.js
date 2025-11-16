@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./editProfile.css";
 import Header from "../../Header";
+import Footer from "../../footer"
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -56,27 +58,85 @@ const EditProfile = () => {
     }));
   };
 
-  // --- Sauvegarder les modifications ---
-  const handleSave = async () => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (!storedUser || !storedUser.userId) {
-        alert("Utilisateur non connecté !");
-        return;
-      }
+  // --- Sauvegarder les modifications avec contrôle de saisie ---
+const handleSave = async () => {
+  const { nom, prénom, email, motDePasse, telephone } = formData;
 
-      await axios.put(
-        `http://localhost:5000/api/user/${storedUser.userId}`,
-        formData
-      );
+  // --- Vérifications ---
+  if (!nom.trim() || !prénom.trim()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Champs manquants',
+      text: 'Le nom et le prénom sont obligatoires !',
+    });
+    return;
+  }
 
-      alert("Profil mis à jour avec succès !");
-      navigate("/profile");
-    } catch (err) {
-      console.error("Erreur lors de la mise à jour :", err);
-      alert("Erreur lors de la mise à jour du profil !");
+  // Email valide
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Email invalide',
+      text: 'Veuillez saisir un email valide !',
+    });
+    return;
+  }
+
+  // Mot de passe min 8 caractères
+  if (motDePasse && motDePasse.length < 8) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Mot de passe trop court',
+      text: 'Le mot de passe doit contenir au moins 8 caractères !',
+    });
+    return;
+  }
+
+  // Téléphone : exactement 8 chiffres
+  const telRegex = /^\d{8}$/;
+  if (!telRegex.test(telephone)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Téléphone invalide',
+      text: 'Le numéro de téléphone doit contenir exactement 8 chiffres !',
+    });
+    return;
+  }
+
+  try {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser || !storedUser.userId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Utilisateur non connecté',
+        text: 'Vous devez être connecté pour modifier le profil.',
+      });
+      return;
     }
-  };
+
+    await axios.put(
+      `http://localhost:5000/api/user/${storedUser.userId}`,
+      formData
+    );
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Profil mis à jour',
+      text: 'Vos informations ont été sauvegardées avec succès !',
+    }).then(() => {
+      navigate("/profile");
+    });
+
+  } catch (err) {
+    console.error("Erreur lors de la mise à jour :", err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: 'Une erreur est survenue lors de la mise à jour du profil.',
+    });
+  }
+};
 
   const handleCancel = () => {
     navigate("/profile");
@@ -209,6 +269,7 @@ const EditProfile = () => {
           </div>
         </div>
       </div>
+       <Footer/>
     </div>
   );
 };
