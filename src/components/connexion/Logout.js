@@ -1,4 +1,4 @@
-// Logout.jsx (mis à jour)
+// Logout.jsx
 import { useNavigate } from "react-router-dom";
 import "./../admin/DashboardAdmin.css";
 
@@ -12,8 +12,13 @@ function Logout() {
 
   return (
     <button className="logout-button" onClick={handleLogout}>
-      <i className="fas fa-sign-out-alt"></i>
-      <span>Déconnexion</span>
+      <div className="logout-button-content">
+        <div className="logout-icon">
+          <i className="fas fa-sign-out-alt"></i>
+        </div>
+        <span className="logout-text">Déconnexion</span>
+      </div>
+      <div className="logout-hover-effect"></div>
     </button>
   );
 }

@@ -9,14 +9,18 @@ import Login from './components/connexion/Login';
 import DashboardAdmin from './components/admin/adminDashbord';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
-import ProtectedRoute from "./components/connexion/ProtectedRoute"; 
-import DetailAnnonce from"./components/utilisateur/detailAnnonce/DetailAnnonce";
-import ListeAnnonces from"./components/utilisateur/listeAnnonces/listeAnnonces";
+import ProtectedRoute from "./components/connexion/ProtectedRoute";
+import DetailAnnonce from "./components/utilisateur/detailAnnonce/DetailAnnonce";
+import ListeAnnonces from "./components/utilisateur/listeAnnonces/listeAnnonces";
 import AjouterAnnonce from "./components/proprietaire/Annonces/AjouterAnnonce";
-import Gannonces from "./components/admin/GAnnonce"; 
-import Goffres from "./components/admin/GOffre"; 
-import GUser from "./components/admin/GUser"; 
-import ModifierAnnonce from"./components/proprietaire/Annonces/ModifierAnnonce.js";
+import Gannonces from "./components/admin/GAnnonce";
+import Goffres from "./components/admin/GOffre";
+import GUser from "./components/admin/GUser";
+import ModifierAnnonce from "./components/proprietaire/Annonces/ModifierAnnonce.js";
+import OffresDashboard from "./components/admin/adminDashbord.js";
+import  FormOffre from "./components/admin/FormOffre.js";
+import EditProfileAdmin from "./components/admin/editProfilAdmin.js";
+
 
 function App() {
   const [clients, setClients] = useState([]);
@@ -32,17 +36,21 @@ function App() {
       <Router>
         <Routes>
           {/* 🌍 Pages publiques */}
-<Route path="/editprofile" element={<EditProfile />} />
+          <Route path="/editprofile" element={<EditProfile />} />
           <Route path="/" element={<Accueil />} />
-           <Route path="/annonce/:id" element={<DetailAnnonce/>} />
-          <Route path="/filter" element={<ListeAnnonces/>} />
+          <Route path="/annonce/:id" element={<DetailAnnonce />} />
+          <Route path="/filter" element={<ListeAnnonces />} />
           <Route path="/register" element={<Register />} />
-           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
-           <Route path="/Gannonces" element={<Gannonces />} />
+          <Route path="/Gannonces" element={<Gannonces />} />
           <Route path="/Goffres" element={<Goffres />} />
           <Route path="/GUser" element={<GUser />} />
-          
+          <Route path="/dashboard" element={<OffresDashboard />} />
+          <Route path="/dashboard/offres/ajouter" element={<FormOffre mode="ajouter" />} />
+          <Route path="/dashboard/offres/modifier/:idOff" element={<FormOffre mode="modifier" />} />
+          <Route path="/edit-profile-Admin" element={<EditProfileAdmin />} />
+
 
           {/* 🔒 Pages protégées selon rôle */}
           <Route
@@ -62,25 +70,25 @@ function App() {
             }
           />
 
-<Route
-  path="/dashboard-proprietaire/ajouter-annonce"
-  element={
-    <ProtectedRoute roleRequired="proprietaire">
-      <AjouterAnnonce />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/dashboard-proprietaire/offres"
-  element={
-    <ProtectedRoute roleRequired="proprietaire">
-      <AjouterAnnonce />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/dashboard-proprietaire/ajouter-annonce"
+            element={
+              <ProtectedRoute roleRequired="proprietaire">
+                <AjouterAnnonce />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard-proprietaire/offres"
+            element={
+              <ProtectedRoute roleRequired="proprietaire">
+                <AjouterAnnonce />
+              </ProtectedRoute>
+            }
+          />
 
 
-<Route
+          <Route
             path="/dashboard-client"
             element={
               <ProtectedRoute roleRequired="client">
@@ -88,7 +96,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+
           {/* 🔹 Exemple si tu ajoutes plus tard */}
           {/* 
           <Route
@@ -111,7 +119,7 @@ function App() {
           <Route path="/modifier-annonce/:id" element={<ModifierAnnonce />} />
         </Routes>
       </Router>
-      
+
     </div>
   );
 }
