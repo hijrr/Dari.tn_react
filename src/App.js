@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom";
+
 // 🔹 Composants
 import Register from './components/connexion/register';
 import EditProfile from "./components/utilisateur/editProfile/editProfile";
 import Profile from './components/utilisateur/profile/profile.js';
 import Login from './components/connexion/Login';
-import DashboardAdmin from './components/admin/adminDashbord';
+import DashboardAdmin from './components/admin/adminDashbord.js';
 import PageDashbordPrincipal from './components/proprietaire/Dashbord/PageDashbordPrincipal';
 import Accueil from './components/pageAccueil';
 import ProtectedRoute from "./components/connexion/ProtectedRoute";
 import DetailAnnonce from "./components/utilisateur/detailAnnonce/DetailAnnonce";
 import ListeAnnonces from "./components/utilisateur/listeAnnonces/listeAnnonces";
 import AjouterAnnonce from "./components/proprietaire/Annonces/AjouterAnnonce";
-import Gannonces from "./components/admin/GAnnonce";
-import Goffres from "./components/admin/GOffre";
-import GUser from "./components/admin/GUser";
 import ModifierAnnonce from "./components/proprietaire/Annonces/ModifierAnnonce.js";
-import OffresDashboard from "./components/admin/adminDashbord.js";
 import FormOffre from "./components/admin/FormOffre.js";
 import EditProfileAdmin from "./components/admin/editProfilAdmin.js";
+import AnnonceDetail from "./components//admin/AnnonceDetail.js";
 
 
 function App() {
@@ -43,14 +41,11 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/Gannonces" element={<Gannonces />} />
-          <Route path="/Goffres" element={<Goffres />} />
-          <Route path="/GUser" element={<GUser />} />
-          <Route path="/dashboard" element={<OffresDashboard />} />
+         
           <Route path="/dashboard/offres/ajouter" element={<FormOffre mode="ajouter" />} />
           <Route path="/dashboard/offres/modifier/:idOff" element={<FormOffre mode="modifier" />} />
           <Route path="/edit-profile-Admin" element={<EditProfileAdmin />} />
-
+          <Route path="/annonces/:id" element={<AnnonceDetail />} />
 
           {/* 🔒 Pages protégées selon rôle */}
           <Route

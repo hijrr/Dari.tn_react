@@ -8,13 +8,14 @@ function FormOffre() {
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
+
   // États du formulaire
   const [formData, setFormData] = useState({
     titre: "",
     description: "",
     prix: "",
     date_fin: "",
-    dureeOffre: ""
+    nb_annonces: ""
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -33,7 +34,7 @@ function FormOffre() {
             description: off.description || "",
             prix: off.prix || "",
             date_fin: off.date_fin?.split("T")[0] || "",
-            dureeOffre: off.dureeOffre || ""
+            nb_annonces: off.nb_annonces || ""
           });
         })
         .catch(err => {
@@ -46,9 +47,9 @@ function FormOffre() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: value 
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
     }));
     if (errors[name]) {
       setErrors(prev => ({
@@ -56,6 +57,32 @@ function FormOffre() {
         [name]: ""
       }));
     }
+
+    if (name === "nb_annonces") {
+    const val = parseInt(value, 10);
+    if (val > 24) {
+      setErrors(prev => ({
+        ...prev,
+        nb_annonces: "Le nombre maximal est 24"
+      }));
+    } else if (val < 6) {
+      setErrors(prev => ({
+        ...prev,
+        nb_annonces: "Le nombre minimal est 6"
+      }));
+    } else {
+      setErrors(prev => ({
+        ...prev,
+        nb_annonces: ""
+      }));
+    }
+  } else if (errors[name]) {
+    // supprimer l'erreur pour les autres champs
+    setErrors(prev => ({
+      ...prev,
+      [name]: ""
+    }));
+  }
   };
 
   const validateForm = () => {
@@ -77,8 +104,8 @@ function FormOffre() {
       newErrors.prix = "Le prix doit être supérieur à 0";
     }
 
-    if (!formData.dureeOffre || parseInt(formData.dureeOffre) <= 0) {
-      newErrors.dureeOffre = "La durée doit être supérieure à 0";
+    if (!formData.nb_annonces || parseInt(formData.nb_annonces) <= 0) {
+      newErrors.nb_annonces = "La durée doit être supérieure à 0";
     }
 
     if (!formData.date_fin) {
@@ -87,7 +114,7 @@ function FormOffre() {
       const selectedDate = new Date(formData.date_fin);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (selectedDate <= today) {
         newErrors.date_fin = "La date de fin doit être dans le futur";
       }
@@ -99,25 +126,25 @@ function FormOffre() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-    
+
     try {
       if (mode === "modifier") {
         await axios.put(`http://localhost:5000/api/offresModff/${idOff}`, formData);
       } else {
         await axios.post(`http://localhost:5000/api/offres/${user.userId}`, formData);
       }
-      
-      navigate("/dashboard");
+
+      navigate("/dashboard-admin");
     } catch (err) {
       console.error("Erreur:", err);
-      setErrors({ 
-        submit: err.response?.data?.message || "Erreur lors de l'opération." 
+      setErrors({
+        submit: err.response?.data?.message || "Erreur lors de l'opération."
       });
     } finally {
       setLoading(false);
@@ -125,26 +152,10 @@ function FormOffre() {
   };
 
   const handleCancel = () => {
-    navigate("/dashboard");
+    navigate("/dashboard-admin");
   };
 
-  const calculateEndDate = (duration) => {
-    if (duration && !isNaN(duration)) {
-      const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + parseInt(duration));
-      return endDate.toISOString().split('T')[0];
-    }
-    return '';
-  };
 
-  const handleDurationChange = (e) => {
-    const duration = e.target.value;
-    setFormData(prev => ({
-      ...prev,
-      dureeOffre: duration,
-      date_fin: calculateEndDate(duration)
-    }));
-  };
 
   if (loading && mode === "modifier") {
     return (
@@ -455,8 +466,8 @@ function FormOffre() {
             <div className="header-content">
               <h1>{mode === "modifier" ? "Modifier l'offre" : "Ajouter une nouvelle offre"}</h1>
               <p>
-                {mode === "modifier" 
-                  ? "Modifiez les informations de l'offre existante" 
+                {mode === "modifier"
+                  ? "Modifiez les informations de l'offre existante"
                   : "Remplissez les informations de votre nouvelle offre"
                 }
               </p>
@@ -529,28 +540,29 @@ function FormOffre() {
 
               {/* Durée */}
               <div className="form-group">
-                <label htmlFor="dureeOffre" className="form-label">
+                <label htmlFor="nb_annonces" className="form-label">
                   <i className="fas fa-clock"></i>
-                  Durée (mois) *
+                  nombre des annonces *
                 </label>
-                <select
-                  id="dureeOffre"
-                  name="dureeOffre"
-                  value={formData.dureeOffre}
-                  onChange={handleDurationChange}
-                  className={`form-select ${errors.dureeOffre ? 'error' : ''}`}
-                >
-                  <option value="">Sélectionnez la durée</option>
-                  <option value="1">1 mois</option>
-                  <option value="3">3 mois</option>
-                  <option value="6">6 mois</option>
-                  <option value="12">12 mois</option>
-                  <option value="24">24 mois</option>
-                </select>
-                {errors.dureeOffre && (
+                <input
+                  id="nb_annonces"
+                  name="nb_annonces"
+                  value={formData.nb_annonces}
+                  type="number"
+                  min="6"
+                  max="24"
+                  step="1"
+                  onChange={handleChange}
+                  className={`form-input ${errors.nb_annonces ? 'error' : ''}`}
+                />
+
+
+
+
+                {errors.nb_annonces && (
                   <span className="error-text">
                     <i className="fas fa-exclamation-triangle"></i>
-                    {errors.dureeOffre}
+                    {errors.nb_annonces}
                   </span>
                 )}
               </div>
