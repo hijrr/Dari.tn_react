@@ -60,6 +60,7 @@ function GestionDemandes() {
 
     try {
       const response = await axios.get(`http://localhost:5000/api/messages/${userId}/${clientId}`);
+
       
       const messagesFormates = response.data.map(msg => ({
         id: msg.idMesg,

@@ -6,6 +6,7 @@ import "./detailAnnonce.css";
 import Header from "../../Header";
 import ShowMap from "./ShowMap";
 import Footer from "../../footer"
+import ChatBox from "../chatClient/ChatBox";
 
 const DetailAnnonce = () => {
   const { id } = useParams();
@@ -17,7 +18,24 @@ const DetailAnnonce = () => {
   const [showMap, setShowMap] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteId, setFavoriteId] = useState(null);
+  const [etatDemande, setEtatDemande] = useState(null);
+const [showChat, setShowChat] = useState(false);
 
+
+
+//changer le button quand l'acceptation se fait
+useEffect(() => {
+  const fetchEtat = async () => {
+    if (!user || !annonce) return;
+
+    const res = await axios.get(
+      `http://localhost:5000/api/demandes/etat?userId=${user.userId}&annonceId=${annonce.idAnnonce}`
+    );
+    setEtatDemande(res.data.etat);
+  };
+
+  fetchEtat();
+}, [user, annonce]);
 
   // --- Charger l'utilisateur connecté ---
   useEffect(() => {
@@ -246,7 +264,12 @@ const DetailAnnonce = () => {
             </div>
 
             <div className="action-buttons">
-              <button className="btn btn-primary" onClick={handleSendRequest}>📩 Envoyer une demande</button>
+{etatDemande === "accepte" ? (
+  <div >
+  <button className="btn btn-success"onClick={() => setShowChat(!showChat)}>Contacter</button>
+    {showChat && <ChatBox user={user} proprietaireId={annonce.userId} />}  </div>
+) : (
+              <button className="btn btn-primary" onClick={handleSendRequest}>📩 Envoyer une demande</button>)}
               <button
                 style={{ padding: "10px 20px", borderRadius: "8px", backgroundColor: "#007bff", color: "white", border: "none", cursor: "pointer", marginTop: "10px" }}
                 onClick={() => setShowMap(!showMap)}

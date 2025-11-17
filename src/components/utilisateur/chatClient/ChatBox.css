@@ -1,0 +1,232 @@
+/* ChatBox.css */
+
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  max-width: 400px;
+  margin: 0 auto;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+/* Zone des messages */
+.messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Style de la barre de défilement */
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Message envoyé (à droite) */
+.msg-sent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: 20%;
+}
+
+.msg-sent .msg-content {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 18px 18px 4px 18px;
+  max-width: 100%;
+  word-wrap: break-word;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  position: relative;
+}
+
+/* Message reçu (à gauche) */
+.msg-received {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 20%;
+}
+
+.msg-received .msg-content {
+  background: #ffffff;
+  color: #333333;
+  padding: 12px 16px;
+  border-radius: 18px 18px 18px 4px;
+  max-width: 100%;
+  word-wrap: break-word;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+/* Date des messages */
+.msg-date {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 4px;
+  padding: 0 8px;
+}
+
+.msg-sent .msg-date {
+  text-align: right;
+}
+
+.msg-received .msg-date {
+  text-align: left;
+}
+
+/* Zone d'envoi de message */
+.send-msg {
+  display: flex;
+  padding: 16px;
+  background: #ffffff;
+  border-top: 1px solid #e1e5e9;
+  gap: 8px;
+  align-items: center;
+}
+
+.send-msg input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #e1e5e9;
+  border-radius: 24px;
+  outline: none;
+  font-size: 14px;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.send-msg input:focus {
+  border-color: #007bff;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.send-msg input::placeholder {
+  color: #6c757d;
+}
+
+.send-msg button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.send-msg button:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.send-msg button:active {
+  transform: translateY(0);
+}
+
+.send-msg button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animation d'apparition des messages */
+.msg-sent, .msg-received {
+  animation: messageAppear 0.3s ease-out;
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .chat-box {
+    height: 100vh;
+    max-width: none;
+    border-radius: 0;
+    border: none;
+  }
+  
+  .msg-sent {
+    margin-left: 10%;
+  }
+  
+  .msg-received {
+    margin-right: 10%;
+  }
+  
+  .send-msg {
+    padding: 12px;
+  }
+  
+  .send-msg input {
+    padding: 10px 14px;
+  }
+  
+  .send-msg button {
+    padding: 10px 16px;
+    min-width: 70px;
+  }
+}
+
+/* Effet de profondeur pour les messages */
+.msg-sent .msg-content::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.msg-received .msg-content::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: -2px;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border-radius: 50%;
+  opacity: 0.3;
+}
