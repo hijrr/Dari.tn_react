@@ -1,5 +1,5 @@
 /* Variables CSS pour un design cohérent */
-.notification-bell-container {
+.notif-notification-bell-container {
   --primary-blue: #1890ff;
   --primary-blue-light: #e6f7ff;
   --success-green: #52c41a;
@@ -61,7 +61,7 @@
 }
 
 /* Badge de notification */
-.notification-badge {
+.notif-notification-badge {
   position: absolute;
   top: -6px;
   right: -6px;
@@ -254,7 +254,7 @@
   cursor: pointer;
 }
 
-.notification-icon {
+.notif-notification-icon {
   font-size: 16px;
   margin-top: 2px;
   flex-shrink: 0;
@@ -586,4 +586,5 @@
 /* Ajoutez cette classe conditionnellement dans votre JS */
 .has-notifications {
   animation: bell-pulse 2s ease-in-out infinite;
+  -webkit-animation: bell-pulse 2s ease-in-out infinite;
 }

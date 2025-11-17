@@ -45,6 +45,7 @@
 .header-actions {
   display: flex;
   gap: 15px;
+  margin-left: 800px;
 }
 
 .favorite-btn {
@@ -236,9 +237,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
+   width: 100%;
   margin-top: 40px;
 }
-
+.action-buttons button.action-btn {
+  width: 100%;
+}
 .btn {
   padding: 16px 24px;
   border-radius: 16px;
@@ -260,6 +264,7 @@
   color: white;
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
+
 
 .btn-secondary {
   background: linear-gradient(135deg, #ed8936, #dd6b20);

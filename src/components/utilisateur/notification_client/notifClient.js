@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BellOutlined, DeleteOutlined } from '@ant-design/icons';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import './notifClient.css';
 
 const NotificationBell = () => {
@@ -15,22 +17,31 @@ const NotificationBell = () => {
   // Charger MES notifications
   const chargerMesNotifications = async () => {
     if (!userId) return;
-    
+
     try {
       const [notifsRes, countRes] = await Promise.all([
         axios.get(`http://localhost:5000/api/mes-notifications?userId=${userId}`),
         axios.get(`http://localhost:5000/api/mes-notifications/non-lues?userId=${userId}`)
       ]);
-      
+
       setNotifications(notifsRes.data);
       setUnreadCount(countRes.data.count);
 
-      // Alert pour les nouvelles notifications
+      // SweetAlert info pour nouvelles notifications
       if (countRes.data.count > 0) {
-        console.log(`🔔 Vous avez ${countRes.data.count} nouvelle(s) notification(s)`);
+        Swal.fire({
+          title: '🔔 Nouvelle notification',
+          text: `Vous avez ${countRes.data.count} nouvelle(s) notification(s)`,
+          icon: 'info',
+          timer: 2500,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
       }
     } catch (err) {
       console.error('Erreur chargement notifications:', err);
+      Swal.fire('Erreur', 'Impossible de charger les notifications', 'error');
     }
   };
 
@@ -38,7 +49,6 @@ const NotificationBell = () => {
   useEffect(() => {
     if (userId) {
       chargerMesNotifications();
-      // Recharger toutes les 30 secondes
       const interval = setInterval(chargerMesNotifications, 30000);
       return () => clearInterval(interval);
     }
@@ -50,32 +60,47 @@ const NotificationBell = () => {
       await axios.put(`http://localhost:5000/api/mes-notifications/${notificationId}/lu`, {
         userId: userId
       });
-      setNotifications(notifications.map(notif => 
+      setNotifications(notifications.map(notif =>
         notif.idNotification === notificationId ? { ...notif, lu: 1 } : notif
       ));
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (err) {
       console.error('Erreur marquer comme lu:', err);
+      Swal.fire('Erreur', 'Impossible de marquer comme lu', 'error');
     }
   };
 
-  // Supprimer une notification
+  // Supprimer une notification avec SweetAlert
   const supprimerNotification = async (notificationId) => {
-    if (window.confirm('Supprimer cette notification ?')) {
+    const result = await Swal.fire({
+      title: 'Supprimer cette notification ?',
+      text: "Cette action est irréversible !",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler'
+    });
+
+    if (result.isConfirmed) {
       try {
         await axios.delete(`http://localhost:5000/api/mes-notifications/${notificationId}`, {
           data: { userId: userId }
         });
+
         setNotifications(notifications.filter(notif => notif.idNotification !== notificationId));
-        
-        // Mettre à jour le compteur
+
         const notifASupprimer = notifications.find(n => n.idNotification === notificationId);
         if (notifASupprimer && notifASupprimer.lu === 0) {
           setUnreadCount(prev => Math.max(0, prev - 1));
         }
+
+        Swal.fire('Supprimé !', 'La notification a été supprimée.', 'success');
+
       } catch (err) {
         console.error('Erreur suppression:', err);
-        alert('Erreur lors de la suppression');
+        Swal.fire('Erreur', 'Erreur lors de la suppression', 'error');
       }
     }
   };
@@ -89,11 +114,14 @@ const NotificationBell = () => {
   };
 
   return (
-    <div className="notification-bell-container">
+    <div className="notif-notification-bell-container">
       {/* Bouton Cloche */}
-      <button className={`bell-button ${unreadCount > 0 ? 'has-notifications' : ''}`} onClick={() => setShowList(!showList)}>
+      <button
+        className={`bell-button ${unreadCount > 0 ? 'has-notifications' : ''}`}
+        onClick={() => setShowList(!showList)}
+      >
         <BellOutlined />
-        {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+        {unreadCount > 0 && <span className="notif-notification-badge">{unreadCount}</span>}
       </button>
 
       {/* Liste des notifications */}
@@ -111,7 +139,7 @@ const NotificationBell = () => {
               notifications.map(notification => (
                 <div key={notification.idNotification} className={`notification-item ${notification.lu === 0 ? 'unread' : 'read'}`}>
                   <div className="notification-content" onClick={() => voirDetails(notification)}>
-                    <div className="notification-icon">
+                    <div className="notif-notification-icon">
                       {notification.typeNotification === 'message' && '💬'}
                       {notification.typeNotification === 'nouvelle_demande' && '📋'}
                       {!['message', 'nouvelle_demande'].includes(notification.typeNotification) && '🔔'}
@@ -119,12 +147,10 @@ const NotificationBell = () => {
                     <div className="notification-text">
                       <strong>{notification.titre}</strong>
                       <p>{notification.message}</p>
-                      <small>
-                        {new Date(notification.dateCreation).toLocaleDateString('fr-FR')}
-                      </small>
+                      <small>{new Date(notification.dateCreation).toLocaleDateString('fr-FR')}</small>
                     </div>
                   </div>
-                  <button 
+                  <button
                     className="delete-notification-btn"
                     onClick={() => supprimerNotification(notification.idNotification)}
                     title="Supprimer"
@@ -172,7 +198,7 @@ const NotificationBell = () => {
             </div>
             <div className="notification-modal-footer">
               <button onClick={() => setSelectedNotification(null)}>Fermer</button>
-              <button 
+              <button
                 className="notification-delete-btn"
                 onClick={() => {
                   supprimerNotification(selectedNotification.idNotification);

@@ -5,8 +5,10 @@ import Footer from "../../footer";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null); 
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -163,6 +165,9 @@ const Profile = () => {
       });
     }
   };
+  const handleCancel = () => {
+    navigate("/");
+  };
 
   if (!user) return <p>Chargement du profil...</p>;
 
@@ -179,6 +184,9 @@ const Profile = () => {
       <div className="profile-container">
         <div className="profile-content">
           {/* Section Profil */}
+          <button className="back-btn" onClick={handleCancel}>
+              ← Retour
+            </button>
           <div className="profile-section">
             <h1 className="profile-title">MON PROFIL</h1>
 
@@ -223,7 +231,7 @@ const Profile = () => {
               </div>
               <div className="info-item">
                 <span className="info-label">Date d'inscription :</span>
-                <span className="info-value">{user.dateInscri}</span>
+                <span className="info-value">{new Date(user.dateInscri).toLocaleDateString("fr-FR")}</span>
               </div>
             </div>
           </div>
@@ -257,14 +265,12 @@ const Profile = () => {
                         <span className="detail-label">Ville :</span>
                         <span className="detail-value">{favori.localisation}</span>
                       </div>
-                      <div className="favori-tel">
-                        <span className="detail-label">Tél :</span>
-                        <span className="detail-value">{favori.tel}</span>
-                      </div>
+                    
                     </div>
 
                     <div className="favori-actions">
-                      <button className="action-btn contact-btn">Contacter</button>
+                      
+                      <button className="action-btn contact-btn" onClick={() => navigate(`/annonce/${favori.idAnnonce}`)}>Voir Détails</button>
                       <button
                         className="action-btn remove-btn"
                         onClick={() => handleRemoveFavori(favori.idFav)}
