@@ -1382,4 +1382,28 @@
 .price-low { background-color: #d4edda; color: #155724; padding: 2px 6px; border-radius: 8px; }
 .price-medium { background-color: #fff3cd; color: #155724; padding: 2px 6px; border-radius: 8px; }
 .price-high { background-color: #f8d7da; color: #155724; padding: 2px 6px; border-radius: 8px; }
+.user1-info-small .profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Taille + forme ronde de la photo */
+.user-avatar-img1 {
+  width: 40px;        /* taille de la photo (tu peux mettre 35px si tu veux plus petit) */
+  height: 40px;
+  border-radius: 50%; /* rend l'image parfaitement ronde */
+  object-fit: cover;  /* coupe l'image correctement */
+  border: 2px solid #667eea; /* optionnel : contour violet */
+}
+
+/* Style du nom à côté de la photo */
+.user-name1 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
 
