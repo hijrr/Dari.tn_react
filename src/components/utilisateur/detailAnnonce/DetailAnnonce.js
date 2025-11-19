@@ -266,7 +266,7 @@ useEffect(() => {
             <div className="action-buttons">
 {etatDemande === "accepte" ? (
   <div >
-  <button className="btn btn-success"onClick={() => setShowChat(!showChat)}>Contacter</button>
+  <button className="btn btn-success action-btn"onClick={() => setShowChat(!showChat)}>Contacter</button>
     {showChat && <ChatBox user={user} proprietaireId={annonce.userId} />}  </div>
 ) : (
               <button className="btn btn-primary" onClick={handleSendRequest}>📩 Envoyer une demande</button>)}

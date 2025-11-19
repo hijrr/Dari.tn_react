@@ -15,7 +15,7 @@ const ListeAnnonces = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/getAnnonces")
+      .get("http://localhost:5000/getAnnoncesActif")
       .then((res) => {
         setAnnonces(Array.isArray(res.data) ? res.data : []);
       })

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Notif from "../utilisateur/notification_client/notifClient";
 import './Header.css';
-import { Link } from 'react-router-dom';
-
-
 
 const Header = () => {
   const [user, setUser] = useState(null);
@@ -16,35 +14,42 @@ const Header = () => {
     }
   }, []);
 
-  // Fonction de déconnexion
+  // Déconnexion
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
-    window.location.href = "/"; // redirige vers l'accueil
+    window.location.href = "/";
   };
-  // Fonction pour le bouton profil
+
+  // Aller au profil
   const handleProfileClick = () => {
-    console.log('Profil utilisateur cliqué');
-    // Ici vous pouvez ajouter la navigation vers la page profil
     window.location.href = "/profile";
   };
+
   return (
     <header className="header">
-      <div className="container">
+      <div className="header-container">
         <div className="header-content">
+
+          {/* LOGO */}
           <div className="logo">
             <img src="/images/1200x600wa.png" alt="dari" />
           </div>
 
-          <nav className="nav">
+          {/* NAVIGATION */}
+          <nav className="nav-links">
+
             <a href="/" className="nav-link active">Accueil</a>
-            <a href="#contact" className="nav-link">Contact</a>
 
-            {user ?
-              (
-                <div className="user-container">
+            {/* SI USER CONNECTÉ */}
+            {user ? (
+              <>
+                <a href="/filter" className="nav-link">Annonces</a>
 
-                  <button className="profile-btn" onClick={handleProfileClick}>
+                <div className="header-user-container">
+
+                  {/* PROFIL */}
+                  <button className="header-profile-btn" onClick={handleProfileClick}>
                     <img
                       src={
                         user.profileImage
@@ -54,58 +59,32 @@ const Header = () => {
                           : "/images/default-avatar.png"
                       }
                       alt="Profil"
-                      className="user-avatar-img"
+                      className="header-user-avatar"
                       onError={(e) => {
                         e.target.src = "/images/default-avatar.png";
                       }}
                     />
-                    <span className="user-name">
+                    <span className="header-user-name">
                       {user.prénom} {user.nom}
                     </span>
                   </button>
-                  <button className="logout-btn" onClick={handleLogout}>
+
+                  {/* NOTIFICATIONS */}
+                  <Notif />
+
+                  {/* DÉCONNEXION */}
+                  <button className="header-logout-btn" onClick={handleLogout}>
                     Déconnexion
                   </button>
                 </div>
-              ) : (
-                <Link to="/login">
-                  <button className="login-btn">Connexion</button>
-                </Link>
-              )}
-
-            {user ? 
-            (
-              
-            <div className="user-container">
-             <a href="/filter" className="nav-link">Annonces</a>
-                <button className="profile-btn" onClick={handleProfileClick}>
-                   <img
-    src={
-      user.profileImage
-        ? user.profileImage.startsWith("http")
-          ? user.profileImage
-          : `http://localhost:5000${user.profileImage}`
-        : "/images/default-avatar.png"
-    }
-    alt="Profil"
-    className="user-avatar-img"
-    onError={(e) => {
-      e.target.src = "/images/default-avatar.png";
-    }}
-  />
-                  <span className="user-name">
-                    {user.prénom} {user.nom}
-                  </span>
-                </button><Notif/>
-                <button className="logout-btn" onClick={handleLogout}>
-                  Déconnexion
-                </button>
-              </div>
+              </>
             ) : (
+              /* SI NON CONNECTÉ */
               <Link to="/login">
-                <button className="login-btn">Connexion</button>
+                <button className="header-login-btn">Connexion</button>
               </Link>
             )}
+
           </nav>
         </div>
       </div>
