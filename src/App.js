@@ -18,7 +18,7 @@ import ModifierAnnonce from "./components/proprietaire/Annonces/ModifierAnnonce.
 import FormOffre from "./components/admin/FormOffre.js";
 import EditProfileAdmin from "./components/admin/editProfilAdmin.js";
 import AnnonceDetail from "./components//admin/AnnonceDetail.js";
-
+import VerifyEmail from "./components/connexion/VerifyEmail.js";
 
 function App() {
   const [clients, setClients] = useState([]);
@@ -46,6 +46,7 @@ function App() {
           <Route path="/dashboard/offres/modifier/:idOff" element={<FormOffre mode="modifier" />} />
           <Route path="/edit-profile-Admin" element={<EditProfileAdmin />} />
           <Route path="/annonces/:id" element={<AnnonceDetail />} />
+           <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
           {/* 🔒 Pages protégées selon rôle */}
           <Route

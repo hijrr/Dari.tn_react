@@ -249,10 +249,18 @@
   transform: translateY(0);
 }
 
-.login-button.loading {
-  opacity: 0.8;
-  cursor: not-allowed;
+.label-loading {
+  display: none;
 }
+
+.login-button.loading .label-default {
+  display: none;
+}
+
+.login-button.loading .label-loading {
+  display: inline;
+}
+
 
 .spinner {
   width: 18px;

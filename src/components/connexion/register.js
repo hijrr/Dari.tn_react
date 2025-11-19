@@ -1,128 +1,101 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import Swal from "sweetalert2";
 import './Register.css';
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     nom: "",
     prénom: "",
     email: "",
     motDePasse: "",
+    confirmMotDePasse: "",
     telephone: "",
     role: "client",
   });
 
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [isRegistered, setIsRegistered] = useState(false);
 
-  // 🧠 Gestion des changements d'input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  // ✅ Validation côté front avant envoi
   const validateForm = () => {
-    const { nom, prénom, email, motDePasse, telephone } = formData;
+    const { nom, prénom, email, motDePasse, confirmMotDePasse, telephone } = formData;
+    const newErrors = {};
 
-    if (!nom || !prénom || !email || !motDePasse || !telephone) {
-      Swal.fire("Erreur", "Tous les champs sont obligatoires !", "error");
-      return false;
-    }
+    if (!nom) newErrors.nom = "Nom obligatoire";
+    if (!prénom) newErrors.prénom = "Prénom obligatoire";
+    if (!email) newErrors.email = "Email obligatoire";
+    if (!motDePasse) newErrors.motDePasse = "Mot de passe obligatoire";
+    if (!confirmMotDePasse) newErrors.confirmMotDePasse = "Confirmation obligatoire";
+    if (!telephone) newErrors.telephone = "Téléphone obligatoire";
 
     const nameRegex = /^[A-Za-zÀ-ÿ]+$/;
-    if (!nameRegex.test(nom) || !nameRegex.test(prénom)) {
-      Swal.fire(
-        "Erreur",
-        "Le nom et le prénom doivent contenir uniquement des lettres.",
-        "error"
-      );
-      return false;
-    }
+    if (nom && !nameRegex.test(nom)) newErrors.nom = "Le nom doit contenir uniquement des lettres";
+    if (prénom && !nameRegex.test(prénom)) newErrors.prénom = "Le prénom doit contenir uniquement des lettres";
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      Swal.fire("Erreur", "Veuillez entrer une adresse email valide.", "error");
-      return false;
-    }
+    if (email && !emailRegex.test(email)) newErrors.email = "Email invalide";
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (!passwordRegex.test(motDePasse)) {
-      Swal.fire(
-        "Erreur",
-        "Le mot de passe doit contenir au moins 6 caractères, une majuscule et un chiffre.",
-        "error"
-      );
-      return false;
-    }
+    if (motDePasse && !passwordRegex.test(motDePasse)) newErrors.motDePasse = "6 caractères min, 1 majuscule et 1 chiffre";
+
+    if (motDePasse && confirmMotDePasse && motDePasse !== confirmMotDePasse)
+      newErrors.confirmMotDePasse = "Les mots de passe ne correspondent pas";
 
     const phoneRegex = /^[0-9]{8}$/;
-    if (!phoneRegex.test(telephone)) {
-      Swal.fire(
-        "Erreur",
-        "Le numéro de téléphone doit contenir exactement 8 chiffres.",
-        "error"
-      );
-      return false;
-    }
+    if (telephone && !phoneRegex.test(telephone)) newErrors.telephone = "Le numéro doit contenir exactement 8 chiffres";
 
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  // 🚀 Envoi des données + redirection automatique
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!validateForm()) return;
 
-    if (!validateForm()) {
-      setIsLoading(false);
-      return;
-    }
+    setIsLoading(true);
 
     try {
       const response = await axios.post("http://localhost:5000/register", formData);
-
       if (response.status === 201) {
-        const user = response.data.user || {
-          nom: formData.nom,
-          prénom: formData.prénom,
-          email: formData.email,
-          role: formData.role,
-        };
-
-        // ✅ Sauvegarde de l'utilisateur connecté
-        localStorage.setItem("user", JSON.stringify(user));
-
-        Swal.fire({
-          icon: "success",
-          title: "Inscription réussie ",
-          text: "Bienvenue " + formData.prénom + " !",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-
-        // ✅ Redirection selon le rôle
-        setTimeout(() => {
-          if (formData.role === "admin") navigate("/dashboard-admin");
-          else if (formData.role === "agence") navigate("/dashboard-agence");
-          else if (formData.role === "client") navigate("/dashboard-client");
-          else if (formData.role === "proprietaire") navigate("/dashboard-proprietaire");
-          else navigate("/");
-        }, 2000);
-      } else {
-        Swal.fire("Erreur", response.data.message || "Échec de l'inscription", "error");
+        setIsRegistered(true);
+        setTimeout(() => navigate("/login"), 3000);
       }
     } catch (error) {
-      Swal.fire(
-        "Erreur",
-        error.response?.data?.message || "Erreur lors de l'inscription.",
-        "error"
-      );
+      console.error(error);
+      alert(error.response?.data?.message || "Erreur lors de l'inscription.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isRegistered) {
+    return (
+      <div className="register-container">
+        <div className="register-card">
+          <div className="register-header">
+            <div className="logo">
+              <i className="fas fa-home"></i>
+              <span>DariTN</span>
+            </div>
+            <h1>Inscription réussie !</h1>
+            <p>
+              Merci pour votre inscription, {formData.prénom}. <br />
+              Vérifiez votre email pour activer votre compte avant de vous connecter.
+            </p>
+            <p>Redirection vers la page de connexion...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="register-container">
@@ -134,7 +107,7 @@ function Register() {
           <div className="shape shape-4"></div>
         </div>
       </div>
-      
+
       <div className="register-card">
         <div className="register-header">
           <div className="logo">
@@ -160,6 +133,7 @@ function Register() {
                   required
                 />
               </div>
+              {errors.nom && <span className="error">{errors.nom}</span>}
             </div>
 
             <div className="input-group">
@@ -175,6 +149,7 @@ function Register() {
                   required
                 />
               </div>
+              {errors.prénom && <span className="error">{errors.prénom}</span>}
             </div>
           </div>
 
@@ -191,6 +166,7 @@ function Register() {
                 required
               />
             </div>
+            {errors.email && <span className="error">{errors.email}</span>}
           </div>
 
           <div className="input-group">
@@ -206,9 +182,26 @@ function Register() {
                 required
               />
             </div>
+            {errors.motDePasse && <span className="error">{errors.motDePasse}</span>}
             <div className="password-requirements">
               <span>6 caractères minimum, au moins 1 majuscule et 1 chiffre</span>
             </div>
+          </div>
+
+          <div className="input-group">
+            <div className="input-container">
+              <i className="fas fa-lock input-icon"></i>
+              <input
+                type="password"
+                name="confirmMotDePasse"
+                placeholder="Confirmer le mot de passe"
+                value={formData.confirmMotDePasse}
+                onChange={handleChange}
+                className="form-input"
+                required
+              />
+            </div>
+            {errors.confirmMotDePasse && <span className="error">{errors.confirmMotDePasse}</span>}
           </div>
 
           <div className="input-group">
@@ -224,21 +217,16 @@ function Register() {
                 required
               />
             </div>
+            {errors.telephone && <span className="error">{errors.telephone}</span>}
           </div>
 
-
-         
-
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={`register-button ${isLoading ? 'loading' : ''}`}
             disabled={isLoading}
           >
             {isLoading ? (
-              <>
-                <div className="spinner"></div>
-                Inscription...
-              </>
+              <div className="spinner"></div>
             ) : (
               'Créer mon compte'
             )}
@@ -247,11 +235,9 @@ function Register() {
 
         <div className="register-footer">
           <p>
-            Déjà un compte ? 
-            <Link to="/Login" className="login-link">Connectez-vous ici</Link>
+            Déjà un compte ?
+            <a href="/login" className="login-link"> Connectez-vous ici</a>
           </p>
-          
-            
         </div>
       </div>
     </div>
