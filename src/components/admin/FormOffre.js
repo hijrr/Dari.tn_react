@@ -60,10 +60,10 @@ function FormOffre() {
 
     if (name === "nb_annonces") {
     const val = parseInt(value, 10);
-    if (val > 24) {
+    if (val > 100) {
       setErrors(prev => ({
         ...prev,
-        nb_annonces: "Le nombre maximal est 24"
+        nb_annonces: "Le nombre maximal est 100"
       }));
     } else if (val < 6) {
       setErrors(prev => ({
@@ -104,8 +104,8 @@ function FormOffre() {
       newErrors.prix = "Le prix doit être supérieur à 0";
     }
 
-    if (!formData.nb_annonces || parseInt(formData.nb_annonces) <= 0) {
-      newErrors.nb_annonces = "La durée doit être supérieure à 0";
+    if (!formData.nb_annonces || parseInt(formData.nb_annonces) < 6) {
+      newErrors.nb_annonces = "Le nombre des annonces doit être supérieur ou égal à 6";
     }
 
     if (!formData.date_fin) {
@@ -550,8 +550,9 @@ function FormOffre() {
                   value={formData.nb_annonces}
                   type="number"
                   min="6"
-                  max="24"
+                  max="100"
                   step="1"
+                  placeholder="Ex: 10"
                   onChange={handleChange}
                   className={`form-input ${errors.nb_annonces ? 'error' : ''}`}
                 />

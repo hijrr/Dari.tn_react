@@ -109,9 +109,10 @@ const GestionOffres = ({ offre, onEdit, onDelete, onAdd, loading }) => {
                     <div className="no-offres">
                         <div className="no-offres-icon"><i className="fas fa-tags"></i></div>
                         <h3>Aucune offre disponible</h3>
-                        <button onClick={onAdd} className="btn-primary">
+                        <button onClick={goToAjouter} className="btn-primary">
                             <i className="fas fa-plus"></i> Ajouter une offre
                         </button>
+                        
                     </div>
                 ) : (
                     <div className="offres-grid">

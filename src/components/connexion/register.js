@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import './Register.css';
+import "./Register.css";
 import { useNavigate } from "react-router-dom";
 
 function Register() {
@@ -29,6 +29,7 @@ function Register() {
     const { nom, prénom, email, motDePasse, confirmMotDePasse, telephone } = formData;
     const newErrors = {};
 
+    // Champs obligatoires
     if (!nom) newErrors.nom = "Nom obligatoire";
     if (!prénom) newErrors.prénom = "Prénom obligatoire";
     if (!email) newErrors.email = "Email obligatoire";
@@ -36,6 +37,7 @@ function Register() {
     if (!confirmMotDePasse) newErrors.confirmMotDePasse = "Confirmation obligatoire";
     if (!telephone) newErrors.telephone = "Téléphone obligatoire";
 
+    // Vérifications
     const nameRegex = /^[A-Za-zÀ-ÿ]+$/;
     if (nom && !nameRegex.test(nom)) newErrors.nom = "Le nom doit contenir uniquement des lettres";
     if (prénom && !nameRegex.test(prénom)) newErrors.prénom = "Le prénom doit contenir uniquement des lettres";
@@ -44,15 +46,18 @@ function Register() {
     if (email && !emailRegex.test(email)) newErrors.email = "Email invalide";
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (motDePasse && !passwordRegex.test(motDePasse)) newErrors.motDePasse = "6 caractères min, 1 majuscule et 1 chiffre";
+    if (motDePasse && !passwordRegex.test(motDePasse))
+      newErrors.motDePasse = "6 caractères min, 1 majuscule et 1 chiffre";
 
     if (motDePasse && confirmMotDePasse && motDePasse !== confirmMotDePasse)
       newErrors.confirmMotDePasse = "Les mots de passe ne correspondent pas";
 
     const phoneRegex = /^[0-9]{8}$/;
-    if (telephone && !phoneRegex.test(telephone)) newErrors.telephone = "Le numéro doit contenir exactement 8 chiffres";
+    if (telephone && !phoneRegex.test(telephone))
+      newErrors.telephone = "Le numéro doit contenir exactement 8 chiffres";
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -120,6 +125,7 @@ function Register() {
 
         <form onSubmit={handleSubmit} className="register-form">
           <div className="form-row">
+            {/* NOM */}
             <div className="input-group">
               <div className="input-container">
                 <i className="fas fa-user input-icon"></i>
@@ -129,13 +135,13 @@ function Register() {
                   placeholder="Nom"
                   value={formData.nom}
                   onChange={handleChange}
-                  className="form-input"
-                  required
+                  className={`form-input ${errors.nom ? "error-input" : ""}`}
                 />
               </div>
               {errors.nom && <span className="error">{errors.nom}</span>}
             </div>
 
+            {/* PRENOM */}
             <div className="input-group">
               <div className="input-container">
                 <i className="fas fa-user input-icon"></i>
@@ -145,14 +151,14 @@ function Register() {
                   placeholder="Prénom"
                   value={formData.prénom}
                   onChange={handleChange}
-                  className="form-input"
-                  required
+                  className={`form-input ${errors.prénom ? "error-input" : ""}`}
                 />
               </div>
               {errors.prénom && <span className="error">{errors.prénom}</span>}
             </div>
           </div>
 
+          {/* EMAIL */}
           <div className="input-group">
             <div className="input-container">
               <i className="fas fa-envelope input-icon"></i>
@@ -162,13 +168,13 @@ function Register() {
                 placeholder="Adresse email"
                 value={formData.email}
                 onChange={handleChange}
-                className="form-input"
-                required
+                className={`form-input ${errors.email ? "error-input" : ""}`}
               />
             </div>
             {errors.email && <span className="error">{errors.email}</span>}
           </div>
 
+          {/* MDP */}
           <div className="input-group">
             <div className="input-container">
               <i className="fas fa-lock input-icon"></i>
@@ -178,8 +184,7 @@ function Register() {
                 placeholder="Mot de passe"
                 value={formData.motDePasse}
                 onChange={handleChange}
-                className="form-input"
-                required
+                className={`form-input ${errors.motDePasse ? "error-input" : ""}`}
               />
             </div>
             {errors.motDePasse && <span className="error">{errors.motDePasse}</span>}
@@ -188,6 +193,7 @@ function Register() {
             </div>
           </div>
 
+          {/* CONFIRM MDP */}
           <div className="input-group">
             <div className="input-container">
               <i className="fas fa-lock input-icon"></i>
@@ -197,13 +203,13 @@ function Register() {
                 placeholder="Confirmer le mot de passe"
                 value={formData.confirmMotDePasse}
                 onChange={handleChange}
-                className="form-input"
-                required
+                className={`form-input ${errors.confirmMotDePasse ? "error-input" : ""}`}
               />
             </div>
             {errors.confirmMotDePasse && <span className="error">{errors.confirmMotDePasse}</span>}
           </div>
 
+          {/* TELEPHONE */}
           <div className="input-group">
             <div className="input-container">
               <i className="fas fa-phone input-icon"></i>
@@ -213,8 +219,7 @@ function Register() {
                 placeholder="Numéro de téléphone"
                 value={formData.telephone}
                 onChange={handleChange}
-                className="form-input"
-                required
+                className={`form-input ${errors.telephone ? "error-input" : ""}`}
               />
             </div>
             {errors.telephone && <span className="error">{errors.telephone}</span>}
@@ -222,14 +227,10 @@ function Register() {
 
           <button
             type="submit"
-            className={`register-button ${isLoading ? 'loading' : ''}`}
+            className={`register-button ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
-            {isLoading ? (
-              <div className="spinner"></div>
-            ) : (
-              'Créer mon compte'
-            )}
+            {isLoading ? <div className="spinner"></div> : "Créer mon compte"}
           </button>
         </form>
 

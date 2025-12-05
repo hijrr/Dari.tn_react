@@ -170,6 +170,8 @@ function DashboardAdmin() {
       }
     }
   };
+
+  
   const handleEdit = (idOff) => {
     navigate(`/dashboard/offres/modifier/${idOff}`);
   };
@@ -206,7 +208,7 @@ function DashboardAdmin() {
 
           const message =
             error.response?.data?.message ||
-            "Une erreur est survenue lors de la suppression.";
+            "Impossible de supprimer cette offre avant la date fin.";
 
           Swal.fire({
             icon: "error",
